@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YUNOTE — Daily Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/yunote.css">
+</head>
+<body>
+
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="topbar-brand">
+      <a href="index.html">YUPLACED</a>
+      <span class="sep">/</span>
+      <span class="current">YUNOTE</span>
+    </div>
+    <div class="topbar-nav">
+      <button class="day-nav-btn" id="btn-prev">◀</button>
+      <span id="day-label">—</span>
+      <button class="day-nav-btn" id="btn-next">▶</button>
+      <span id="today-badge-el" class="today-badge" style="display:none;">TODAY</span>
+    </div>
+    <button class="btn-new" id="btn-new-day">+ NEW DAY</button>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app">
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">RECENT DAYS</div>
+        <div id="day-list"></div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">ALL TIME</div>
+        <div class="stats-row">
+          <span class="stats-label">Time tracked</span>
+          <span class="stats-val" id="stat-time">—</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">Tasks done</span>
+          <span class="stats-val" id="stat-tasks">—</span>
+        </div>
+        <div class="stats-row">
+          <span class="stats-label">Days logged</span>
+          <span class="stats-val" id="stat-days">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2×2 GRID -->
+    <div id="main">
+
+      <!-- DONE -->
+      <div class="block" id="block-done">
+        <div class="block-header">
+          <span class="block-label done">DONE</span>
+          <button class="block-add" id="add-done-btn">+</button>
+        </div>
+        <div class="block-body">
+          <div id="done-list"></div>
+          <div class="add-row" id="add-done-row" style="display:none;">
+            <input class="add-input" id="add-done-input" placeholder="What did you complete?">
+            <button class="add-submit" id="add-done-submit">↵</button>
+          </div>
+          <div class="empty-hint" id="done-empty">No tasks yet — add what you completed today.</div>
+        </div>
+      </div>
+
+      <!-- VALUE -->
+      <div class="block" id="block-value">
+        <div class="block-header">
+          <span class="block-label value">VALUE</span>
+        </div>
+        <div class="block-body">
+          <textarea class="value-text" id="value-text" placeholder="What personal value did today bring? What did you learn or improve?"></textarea>
+        </div>
+      </div>
+
+      <!-- TIME -->
+      <div class="block" id="block-time">
+        <div class="block-header">
+          <span class="block-label time">TIME</span>
+          <span id="timer-running-dot" style="width:6px;height:6px;border-radius:50%;background:var(--orange);display:none;animation:pulse 1s infinite;"></span>
+        </div>
+        <div class="block-body" style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <div class="time-display" id="time-display">00:00</div>
+            <div class="time-controls">
+              <button class="time-btn" id="timer-toggle">START</button>
+              <button class="time-btn" id="timer-log">LOG</button>
+              <button class="time-btn" id="timer-reset">RESET</button>
+            </div>
+          </div>
+          <div id="time-entries-list"></div>
+          <div class="add-row" style="margin-top:0;">
+            <input class="add-input" id="add-time-label" placeholder="Label (e.g. deep work)">
+            <input class="add-input" id="add-time-val" placeholder="e.g. 2h 30m" style="max-width:80px;">
+            <button class="add-submit" id="add-time-submit">↵</button>
+          </div>
+          <div class="empty-hint" id="time-empty" style="display:none;">No time entries yet.</div>
+        </div>
+      </div>
+
+      <!-- NOTE + NEXT -->
+      <div class="block" id="block-next">
+        <div class="bottom-right-split">
+          <div class="split-top">
+            <div class="split-header">
+              <span class="block-label note" style="font-size:9px;letter-spacing:2px;">NOTE</span>
+            </div>
+            <div class="split-body">
+              <textarea class="note-area" id="note-text" placeholder="Quick thoughts, blockers, ideas…"></textarea>
+            </div>
+          </div>
+          <div class="split-bot">
+            <div class="split-header">
+              <span class="block-label next" style="font-size:9px;letter-spacing:2px;">NEXT TASK'S</span>
+              <button class="block-add" id="add-next-btn">+</button>
+            </div>
+            <div class="split-body">
+              <div id="next-list"></div>
+              <div class="add-row" id="add-next-row" style="display:none;">
+                <input class="add-input" id="add-next-input" placeholder="What's coming up?">
+                <button class="add-submit" id="add-next-submit">↵</button>
+              </div>
+              <div class="empty-hint" id="next-empty">Nothing planned yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /#main -->
+  </div><!-- /#app -->
+
+  <script src="../js/bg-animation.js"></script>
+  <script src="../js/yunote.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+export { YunoteTabs } from './YunoteTabs';

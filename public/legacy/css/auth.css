@@ -1,0 +1,217 @@
+/* ============================================================
+   YUPLACED — Auth Styles
+   Shared by: login.html, signup.html, restore-password.html
+   ============================================================ */
+
+html, body {
+  height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100vh; overflow: hidden;
+}
+
+/* ── Card ── */
+.auth-card {
+  position: relative; z-index: 1;
+  width: 420px;
+  border: 1px solid var(--border);
+  background: #252525;
+  padding: 48px 44px;
+  box-shadow: 0 0 60px #00000040;
+}
+
+/* Corner accents */
+.auth-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 40px; height: 40px;
+  border-top: 2px solid var(--pink);
+  border-left: 2px solid var(--pink);
+}
+.auth-card::after {
+  content: ''; position: absolute; bottom: 0; right: 0;
+  width: 40px; height: 40px;
+  border-bottom: 2px solid var(--pink);
+  border-right: 2px solid var(--pink);
+}
+
+/* ── Card header ── */
+.auth-eyebrow {
+  font-size: 8px; letter-spacing: 3px;
+  color: var(--pink); margin-bottom: 10px;
+}
+.auth-title {
+  font-family: var(--mono); font-size: 28px;
+  letter-spacing: 4px; color: #fff; margin-bottom: 6px;
+}
+.auth-sub {
+  font-size: 10px; color: var(--muted);
+  margin-bottom: 32px; line-height: 1.8;
+}
+
+/* ── Form fields ── */
+.field { margin-bottom: 20px; }
+.field-label {
+  display: block; font-size: 8px; letter-spacing: 2px;
+  color: var(--muted); margin-bottom: 8px;
+}
+.field-input {
+  width: 100%;
+  background: #1e1e1e; border: 1px solid var(--border);
+  color: var(--text); font-family: var(--body); font-size: 12px;
+  padding: 12px 14px; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.field-input:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 2px #e040a015;
+}
+.field-input::placeholder { color: #444; }
+
+.fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── Forgot link ── */
+.forgot {
+  display: flex; justify-content: flex-end;
+  margin-top: -10px; margin-bottom: 28px;
+}
+.forgot a {
+  font-size: 8px; letter-spacing: 1px; color: #555;
+  text-decoration: none; transition: color .2s;
+}
+.forgot a:hover { color: var(--pink); }
+
+/* ── Submit button ── */
+.btn-submit {
+  width: 100%; background: var(--pink); color: #fff; border: none;
+  padding: 14px;
+  font-family: var(--body); font-size: 12px; letter-spacing: 2px;
+  cursor: pointer; margin-bottom: 20px;
+  transition: box-shadow .2s, transform .1s;
+}
+.btn-submit:hover {
+  box-shadow: 0 0 24px #e040a050;
+  transform: translateY(-1px);
+}
+.btn-submit:disabled {
+  background: #333; color: #555;
+  cursor: default; box-shadow: none; transform: none;
+}
+
+/* ── Divider ── */
+.auth-divider {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.auth-divider::before,
+.auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.auth-divider span { font-size: 8px; color: #444; letter-spacing: 2px; }
+
+/* ── Switch link ── */
+.auth-switch { text-align: center; font-size: 10px; color: var(--muted); }
+.auth-switch a { color: var(--pink); text-decoration: none; }
+.auth-switch a:hover { opacity: .75; }
+
+/* ── Password strength ── */
+.password-strength {
+  margin-top: 8px; display: flex; gap: 4px; align-items: center;
+}
+.strength-bar { flex: 1; height: 2px; background: #333; transition: background .3s; }
+.strength-bar.weak   { background: #f44336; }
+.strength-bar.medium { background: #ff9800; }
+.strength-bar.strong { background: #4caf50; }
+.strength-label { font-size: 7px; color: #555; letter-spacing: 1px; min-width: 40px; }
+
+/* ── Terms row ── */
+.terms-row {
+  display: flex; align-items: flex-start; gap: 10px; margin-bottom: 24px;
+}
+.terms-check {
+  width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px;
+  border: 1px solid var(--border); cursor: pointer;
+  transition: border-color .2s; position: relative;
+}
+.terms-check.checked { border-color: var(--pink); background: var(--pink-lo); }
+.terms-check.checked::after {
+  content: '✓'; font-size: 9px; color: var(--pink);
+  position: absolute; top: -1px; left: 1px;
+}
+.terms-text { font-size: 9px; color: var(--muted); line-height: 1.6; }
+.terms-text a { color: var(--pink); text-decoration: none; }
+
+/* ── Restore: Steps indicator ── */
+.steps {
+  display: flex; align-items: center; margin-bottom: 36px;
+}
+.step {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 6px; position: relative;
+}
+.step:not(:last-child)::after {
+  content: ''; position: absolute;
+  top: 11px; left: calc(50% + 12px);
+  width: calc(100% - 24px); height: 1px;
+  background: var(--border); transition: background .4s;
+}
+.step.done:not(:last-child)::after { background: var(--pink); }
+.step-dot {
+  width: 22px; height: 22px; border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; color: #555; font-family: var(--mono);
+  transition: border-color .3s, color .3s, background .3s;
+}
+.step.active .step-dot,
+.step.done   .step-dot {
+  border-color: var(--pink); color: var(--pink); background: var(--pink-lo);
+}
+.step-label { font-size: 7px; letter-spacing: 1px; color: #444; }
+.step.active .step-label { color: var(--pink); }
+.step.done   .step-label { color: #666; }
+
+/* ── Restore: Code input ── */
+.code-row { display: flex; gap: 8px; margin-bottom: 20px; }
+.code-input {
+  flex: 1; min-width: 0;
+  background: #1e1e1e; border: 1px solid var(--border);
+  color: var(--text); font-family: var(--mono); font-size: 16px;
+  padding: 10px 0; outline: none; text-align: center;
+  transition: border-color .2s;
+}
+.code-input:focus { border-color: var(--pink); }
+
+/* ── Restore: Resend row ── */
+.resend-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: -8px; margin-bottom: 24px;
+}
+.resend-btn {
+  font-size: 8px; letter-spacing: 1px; color: #555;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--body); transition: color .2s;
+}
+.resend-btn:hover { color: var(--pink); }
+.resend-timer { font-size: 8px; color: #444; font-family: var(--mono); }
+
+/* ── Restore: Success icon ── */
+.success-icon {
+  width: 56px; height: 56px; border: 2px solid var(--pink);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px; font-size: 24px; color: var(--pink);
+  box-shadow: 0 0 20px #e040a030;
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════ */
+@media (max-width: 768px) {
+  nav { padding: 14px 24px; }
+  .auth-card { width: 90%; padding: 36px 28px; }
+}
+@media (max-width: 480px) {
+  nav { padding: 12px 16px; }
+  .auth-card { width: 100%; max-width: none; margin: 0 16px; padding: 32px 20px; }
+  .auth-title { font-size: 22px; letter-spacing: 3px; }
+  .fields-row { grid-template-columns: 1fr; }
+  .code-row { gap: 6px; }
+  .code-input { font-size: 14px; padding: 8px 0; }
+  .btn-submit { font-size: 11px; }
+  .step-label { font-size: 6px; }
+}

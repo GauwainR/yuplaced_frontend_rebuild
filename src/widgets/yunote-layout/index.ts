@@ -1,0 +1,1 @@
+export { YunoteLayout } from './YunoteLayout';
