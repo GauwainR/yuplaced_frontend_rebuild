@@ -1,16 +1,25 @@
 import { useApp } from '../../app/providers';
 
-export function NoteSection({ note }) {
+type Props = {
+  note: string;
+};
+
+export function NoteSection({ note }: Props) {
   const { updateNote } = useApp();
 
   return (
-    <div>
-      <h3>NOTE</h3>
+    <section className="daily-report-panel daily-report-panel--note">
+      <header className="daily-report-panel__header">
+        <h2>NOTE</h2>
+        <span className="daily-report-panel__hint">+ add note</span>
+      </header>
+
       <textarea
+        className="daily-report-note-area"
         value={note}
         onChange={(e) => updateNote(e.target.value)}
-        style={{ width: '100%', minHeight: 100 }}
+        placeholder="Quick thoughts, blockers, ideas…"
       />
-    </div>
+    </section>
   );
 }

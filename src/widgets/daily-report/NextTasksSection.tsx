@@ -1,3 +1,5 @@
+import { useState, type KeyboardEvent } from 'react';
+import { useApp } from '../../app/providers';
 import type { NextTask } from '../../entities/day-report/model/types';
 
 type Props = {
@@ -5,33 +7,103 @@ type Props = {
 };
 
 export function NextTasksSection({ tasks }: Props) {
-  const regularTasks = tasks.filter((task) => !task.suggested);
-  const suggestedTasks = tasks.filter((task) => task.suggested);
+  const { addNextTask, removeNextTask, promoteSuggested } = useApp();
+  const [draft, setDraft] = useState('');
+  const [adding, setAdding] = useState(false);
+
+  const regular = tasks.filter((t) => !t.suggested);
+  const suggested = tasks.filter((t) => t.suggested);
+
+  const submit = () => {
+    if (!draft.trim()) {
+      setAdding(false);
+      return;
+    }
+    addNextTask(draft);
+    setDraft('');
+    setAdding(false);
+  };
+
+  const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') submit();
+    if (e.key === 'Escape') {
+      setDraft('');
+      setAdding(false);
+    }
+  };
 
   return (
     <section className="daily-report-panel daily-report-panel--next">
       <header className="daily-report-panel__header">
         <h2>NEXT TASKS</h2>
-        <button type="button">+</button>
+        <button
+          type="button"
+          className="daily-report-panel__add"
+          onClick={() => setAdding((v) => !v)}
+          aria-label="Add next task"
+        >
+          +
+        </button>
       </header>
 
       <div className="daily-report-list">
-        {regularTasks.map((task) => (
-          <label key={task.id} className="daily-report-check-row">
+        {regular.map((task) => (
+          <div key={task.id} className="daily-report-check-row">
             <span className="daily-report-checkbox" />
-            <span>{task.title}</span>
-          </label>
+            <span className="daily-report-check-row__text">{task.title}</span>
+            <button
+              type="button"
+              className="daily-report-row-del"
+              onClick={() => removeNextTask(task.id)}
+              aria-label="Remove"
+            >
+              ×
+            </button>
+          </div>
         ))}
       </div>
 
-      <div className="daily-report-inline-input">Что дальше?</div>
+      {adding ? (
+        <div className="daily-report-add-row">
+          <input
+            autoFocus
+            className="daily-report-add-input"
+            placeholder="Что дальше?"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={submit}
+            onKeyDown={handleKey}
+          />
+          <button
+            type="button"
+            className="daily-report-add-submit"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={submit}
+          >
+            ↵
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="daily-report-inline-input"
+          onClick={() => setAdding(true)}
+        >
+          Что дальше?
+        </button>
+      )}
 
-      {suggestedTasks.length > 0 && (
+      {suggested.length > 0 && (
         <div className="daily-report-suggested">
           <div className="daily-report-suggested__title">SUGGESTED</div>
 
-          {suggestedTasks.map((task) => (
-            <button key={task.id} type="button" className="daily-report-suggested__item">
+          {suggested.map((task) => (
+            <button
+              key={task.id}
+              type="button"
+              className="daily-report-suggested__item"
+              onClick={() => promoteSuggested(task.id)}
+            >
               <span>→ {task.title}</span>
               <span>+</span>
             </button>

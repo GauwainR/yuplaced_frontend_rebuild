@@ -1,45 +1,46 @@
-
-import { useState } from 'react';
 import { useApp } from '../../app/providers';
+import type { Task } from '../../entities/task/model/types';
 
-export function FolderTaskCard({ task }) {
+type Props = {
+  task: Task;
+  folderColor?: string;
+};
+
+export function FolderTaskCard({ task, folderColor }: Props) {
   const { toggleTask } = useApp();
-  const [editing, setEditing] = useState(false);
-  const [title, setTitle] = useState(task.title);
+  const isDone = task.status === 'done';
 
   return (
-    <div className={`folder-task-card ${task.status === 'done' ? 'is-done' : ''}`}>
-      <div
-        className="folder-task-card__checkbox"
+    <article
+      className={`folder-task-card ${isDone ? 'folder-task-card--done' : ''}`}
+      style={folderColor ? { borderLeftColor: folderColor } : undefined}
+    >
+      <button
+        type="button"
+        className={`folder-task-card__checkbox ${isDone ? 'is-checked' : ''}`}
         onClick={() => toggleTask(task.id)}
+        aria-label={isDone ? 'Mark as not done' : 'Mark as done'}
       >
-        {task.status === 'done' ? '✓' : ''}
-      </div>
+        {isDone ? '✓' : ''}
+      </button>
 
       <div className="folder-task-card__content">
-        {editing ? (
-          <input
-            className="folder-task-card__input"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={() => setEditing(false)}
-            autoFocus
-          />
-        ) : (
-          <div
-            className="folder-task-card__title"
-            onDoubleClick={() => setEditing(true)}
-          >
-            {title}
-          </div>
-        )}
+        <div className="folder-task-card__title">{task.title}</div>
 
         <div className="folder-task-card__meta">
-          {task.tag && <span className="tag">{task.tag}</span>}
-          {task.priority && <span className="priority">{task.priority}</span>}
-          {task.time && <span className="time">{task.time}</span>}
+          {task.tag && <span className="folder-board-tag">{task.tag}</span>}
+          {task.priority && (
+            <span
+              className={`folder-board-priority folder-board-priority--${task.priority.toLowerCase()}`}
+            >
+              {task.priority}
+            </span>
+          )}
+          {task.time && task.time !== '—' && (
+            <span className="folder-board-time">⏱ {task.time}</span>
+          )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

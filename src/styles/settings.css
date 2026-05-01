@@ -66,11 +66,22 @@
   color: #ffffff;
   cursor: pointer;
   font-size: 12px;
+  font-family: inherit;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+}
+
+.settings-outline-button:hover {
+  border-color: var(--settings-pink);
+  color: var(--settings-pink);
 }
 
 .settings-danger-button {
   border-color: rgba(255, 81, 81, 0.4);
   color: #ff5151;
+}
+
+.settings-danger-button:hover {
+  background: rgba(255, 81, 81, 0.08);
 }
 
 .settings-hint {
@@ -94,6 +105,15 @@
   background: rgba(255, 255, 255, 0.045);
   color: #ffffff;
   padding: 0 14px;
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  outline: none;
+  transition: border-color 160ms ease;
+}
+
+.settings-field input:focus {
+  border-color: var(--settings-pink);
 }
 
 .settings-label {
@@ -111,12 +131,21 @@
   font-size: 12px;
 }
 
-.settings-current-color,
-.settings-preset {
-  width: 32px;
-  height: 24px;
-  display: inline-block;
+.settings-color-input {
+  width: 38px;
+  height: 28px;
+  padding: 2px;
   border: 1px solid var(--settings-border);
+  background: transparent;
+  cursor: pointer;
+}
+
+.settings-color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.settings-color-input::-webkit-color-swatch {
+  border: none;
 }
 
 .settings-preset-row {
@@ -127,7 +156,20 @@
 .settings-preset {
   width: 24px;
   height: 24px;
+  padding: 0;
+  border: 2px solid transparent;
+  background-color: transparent;
   cursor: pointer;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.settings-preset:hover {
+  transform: scale(1.1);
+}
+
+.settings-preset.is-active {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px currentColor;
 }
 
 .settings-stats-grid {
@@ -136,7 +178,7 @@
   gap: 12px;
 }
 
-.settings-stats-grid div {
+.settings-stats-grid > div {
   padding: 18px;
   border: 1px solid var(--settings-border);
 }
@@ -157,6 +199,11 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+.settings-account-actions .settings-danger-button {
+  margin-left: auto;
 }
 
 .settings-aside {

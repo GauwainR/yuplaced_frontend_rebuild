@@ -7,18 +7,21 @@ import { TimeSection } from './TimeSection';
 import { ValueSection } from './ValueSection';
 
 export function DailyReport() {
-  const { dayReport: data } = useApp();
+  const { dayReport } = useApp();
 
   return (
     <div className="daily-report-shell">
-      <DailyReportSidebar recentDays={data.recentDays} stats={data.stats} />
+      <DailyReportSidebar
+        recentDays={dayReport.recentDays}
+        stats={dayReport.stats}
+      />
 
       <main className="daily-report-grid">
-        <DoneSection items={data.done} />
-        <ValueSection value={data.value} />
-        <TimeSection time={data.time} />
-        <NoteSection note={data.note} />
-        <NextTasksSection tasks={data.next} />
+        <DoneSection items={dayReport.done} />
+        <ValueSection value={dayReport.value} />
+        <TimeSection time={dayReport.time} />
+        <NoteSection note={dayReport.note} />
+        <NextTasksSection tasks={dayReport.next} />
       </main>
     </div>
   );

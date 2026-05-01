@@ -17,6 +17,8 @@
   border-top: 1px solid var(--daily-border);
 }
 
+/* ── Sidebar ───────────────────────────────────────────────── */
+
 .daily-report-sidebar {
   border-right: 1px solid var(--daily-border);
   background: rgba(0, 0, 0, 0.08);
@@ -50,6 +52,7 @@
   cursor: pointer;
   font-size: 12px;
   letter-spacing: 0.08em;
+  font-family: inherit;
 }
 
 .daily-report-day--active,
@@ -72,15 +75,26 @@
   color: var(--daily-pink);
 }
 
+.daily-report-empty {
+  color: var(--daily-muted);
+  font-size: 11px;
+  font-style: italic;
+  padding: 4px 0;
+}
+
+/* ── Grid ──────────────────────────────────────────────────── */
+
 .daily-report-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  grid-template-rows: 260px 220px minmax(220px, 1fr);
+  grid-template-rows: 240px 220px minmax(220px, 1fr);
   min-height: calc(100vh - 112px);
 }
 
 .daily-report-panel {
   position: relative;
+  display: flex;
+  flex-direction: column;
   padding: 22px 24px;
   border-right: 1px solid var(--daily-border);
   border-bottom: 1px solid var(--daily-border);
@@ -92,7 +106,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .daily-report-panel__header h2 {
@@ -101,13 +115,30 @@
   letter-spacing: 0.32em;
 }
 
-.daily-report-panel__header button,
-.daily-report-panel__header span {
-  border: 0;
-  background: transparent;
+.daily-report-panel__hint {
   color: var(--daily-muted);
   font-size: 11px;
   letter-spacing: 0.08em;
+}
+
+.daily-report-panel__add {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--daily-border);
+  background: transparent;
+  color: var(--daily-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+.daily-report-panel__add:hover {
+  color: var(--daily-pink);
+  border-color: var(--daily-pink);
 }
 
 .daily-report-panel--done h2 {
@@ -143,21 +174,36 @@
 .daily-report-panel--next {
   grid-column: 2;
   grid-row: 3;
+  overflow-y: auto;
 }
+
+/* ── List rows ─────────────────────────────────────────────── */
 
 .daily-report-list {
   display: grid;
+  align-content: start;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .daily-report-check-row {
   min-height: 34px;
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   gap: 12px;
+  align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   color: var(--daily-text);
   font-size: 13px;
+}
+
+.daily-report-check-row__text {
   font-weight: 700;
+}
+
+.daily-report-check-row__text.is-done {
+  text-decoration: line-through;
+  color: var(--daily-muted);
 }
 
 .daily-report-checkbox {
@@ -170,16 +216,101 @@
 .daily-report-checkbox--checked {
   border-color: var(--daily-green);
   background:
-    linear-gradient(135deg, transparent 45%, var(--daily-green) 45%, var(--daily-green) 55%, transparent 55%);
+    linear-gradient(
+      135deg,
+      transparent 45%,
+      var(--daily-green) 45%,
+      var(--daily-green) 55%,
+      transparent 55%
+    );
 }
+
+.daily-report-row-del {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.32);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.daily-report-check-row:hover .daily-report-row-del {
+  opacity: 1;
+}
+
+.daily-report-row-del:hover {
+  color: #ff5151;
+  border-color: rgba(255, 81, 81, 0.5);
+}
+
+/* ── Inline add input ──────────────────────────────────────── */
 
 .daily-report-inline-input {
   margin-top: 12px;
   padding: 11px 0;
+  border: 0;
   border-top: 1px dashed rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.22);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.32);
+  cursor: pointer;
+  font-family: inherit;
   font-size: 12px;
+  text-align: left;
+  width: 100%;
+  transition: color 160ms ease;
 }
+
+.daily-report-inline-input:hover {
+  color: var(--daily-pink);
+}
+
+.daily-report-add-row {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.16);
+}
+
+.daily-report-add-input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid var(--daily-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  outline: none;
+}
+
+.daily-report-add-input:focus {
+  border-color: var(--daily-pink);
+}
+
+.daily-report-add-submit {
+  padding: 0 12px;
+  border: 1px solid var(--daily-pink);
+  background: transparent;
+  color: var(--daily-pink);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.daily-report-add-submit:hover {
+  background: rgba(255, 79, 188, 0.12);
+}
+
+/* ── VALUE ────────────────────────────────────────────────── */
 
 .daily-report-value {
   margin: 0;
@@ -189,6 +320,24 @@
   color: #ffffff;
   font-size: 14px;
   font-style: italic;
+}
+
+.daily-report-value.is-loading {
+  color: var(--daily-muted);
+}
+
+.daily-report-value-edit {
+  width: 100%;
+  resize: vertical;
+  min-height: 78px;
+  padding: 14px 16px;
+  border: 1px solid var(--daily-pink);
+  background: rgba(255, 79, 188, 0.06);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  outline: none;
 }
 
 .daily-report-actions {
@@ -203,14 +352,27 @@
   background: transparent;
   color: var(--daily-pink);
   cursor: pointer;
+  font-family: inherit;
   font-size: 11px;
   letter-spacing: 0.12em;
+  transition: background 160ms ease, color 160ms ease;
 }
 
+.daily-report-actions button:hover {
+  background: rgba(255, 79, 188, 0.12);
+}
+
+.daily-report-actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── TIME ─────────────────────────────────────────────────── */
+
 .daily-report-time-total {
-  margin: 28px 0 26px;
+  margin: 14px 0 16px;
   color: var(--daily-orange);
-  font-size: 40px;
+  font-size: 36px;
   letter-spacing: 0.14em;
 }
 
@@ -224,23 +386,47 @@
   justify-content: space-between;
   padding: 10px 12px;
   border: 1px solid rgba(255, 255, 255, 0.07);
+  background: transparent;
   color: var(--daily-muted);
+  cursor: pointer;
+  font-family: inherit;
   font-size: 12px;
+  text-align: left;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.daily-report-time-row:hover {
+  border-color: rgba(255, 81, 81, 0.45);
+  color: #ff5151;
 }
 
 .daily-report-time-row strong {
   color: var(--daily-orange);
 }
 
-.daily-report-note {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.58);
+/* ── NOTE ─────────────────────────────────────────────────── */
+
+.daily-report-note-area {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: inherit;
   font-size: 13px;
   line-height: 1.7;
+  outline: none;
 }
 
+.daily-report-note-area::placeholder {
+  color: rgba(255, 255, 255, 0.22);
+}
+
+/* ── SUGGESTED ────────────────────────────────────────────── */
+
 .daily-report-suggested {
-  margin-top: 22px;
+  margin-top: 18px;
 }
 
 .daily-report-suggested__title {
@@ -256,13 +442,21 @@
   min-height: 30px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   border: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   background: transparent;
   color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
+  font-family: inherit;
   font-size: 12px;
   text-align: left;
+  padding: 6px 0;
+  transition: color 160ms ease;
+}
+
+.daily-report-suggested__item:hover {
+  color: var(--daily-pink);
 }
 
 @media (max-width: 980px) {
