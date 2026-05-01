@@ -1,0 +1,7 @@
+
+/* Optional fix if spacing broken */
+.folder-task-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

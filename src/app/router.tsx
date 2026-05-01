@@ -7,6 +7,10 @@ import { YunoteOverviewPage } from '../pages/yunote/overview/YunoteOverviewPage'
 import { YunotePlaceholderPage } from '../pages/yunote/placeholder/YunotePlaceholderPage';
 import { YunoteLayout } from '../widgets/yunote-layout';
 import { routes } from '../shared/config/routes';
+import { FoldersPage } from '../pages/yunote/folders/FoldersPage';
+import { DailyReportPage } from '../pages/yunote/daily-report/DailyReportPage';
+import { PomodoroPage } from '../pages/yunote/pomodoro/PomodoroPage';
+import { SettingsPage } from '../pages/yunote/settings/SettingsPage';
 
 export function AppRouter() {
   return (
@@ -19,10 +23,10 @@ export function AppRouter() {
       <Route path={routes.yunoteRoot} element={<YunoteLayout />}>
         <Route index element={<Navigate to={routes.yunoteOverview} replace />} />
         <Route path="overview" element={<YunoteOverviewPage />} />
-        <Route path="folders" element={<YunotePlaceholderPage title="FOLDERS" />} />
-        <Route path="daily-report" element={<YunotePlaceholderPage title="DAILY REPORT" />} />
-        <Route path="pomodoro" element={<YunotePlaceholderPage title="POMODORO" />} />
-        <Route path="settings" element={<YunotePlaceholderPage title="SETTINGS" />} />
+        <Route path="folders" element={<FoldersPage />} />
+        <Route path="daily-report" element={<DailyReportPage />} />
+        <Route path="pomodoro" element={<PomodoroPage />} />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
 
       <Route path="/index.html" element={<Navigate to={routes.landing} replace />} />

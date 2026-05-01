@@ -1,13 +1,13 @@
-export type TaskPriority = 'low' | 'medium' | 'high';
+export type TaskPriority = 'LOW' | 'MED' | 'HIGH';
+
 export type TaskStatus = 'todo' | 'in_progress' | 'done';
 
-export interface Task {
+export type Task = {
   id: number;
+  folderId: number;
   title: string;
-  status: TaskStatus;
+  tag: string;
   priority: TaskPriority;
-  folderId?: number;
-  estimatedMinutes?: number;
-  actualMinutes?: number;
-  isTodayFocus?: boolean;
-}
+  status: TaskStatus;
+  time: string;
+};

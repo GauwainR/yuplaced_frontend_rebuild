@@ -1,8 +1,6 @@
-export interface Folder {
+export type Folder = {
   id: number;
   name: string;
-  description: string;
   color: string;
-  taskCount: number;
-  activeCount: number;
-}
+  description?: string;
+};

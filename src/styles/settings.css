@@ -1,0 +1,233 @@
+:root {
+  --settings-border: rgba(255, 255, 255, 0.1);
+  --settings-muted: rgba(255, 255, 255, 0.46);
+  --settings-text: rgba(255, 255, 255, 0.88);
+  --settings-pink: #ff4fbc;
+}
+
+.settings-shell {
+  min-height: calc(100vh - 112px);
+  display: grid;
+  grid-template-columns: minmax(420px, 560px) 340px;
+  gap: 32px;
+  justify-content: center;
+  align-items: start;
+  padding: 28px 32px 64px;
+  border-top: 1px solid var(--settings-border);
+}
+
+.settings-main {
+  display: grid;
+  gap: 20px;
+}
+
+.settings-card,
+.settings-preview-card {
+  padding: 24px;
+  border: 1px solid var(--settings-border);
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.settings-card h2,
+.settings-preview-card h2 {
+  margin: 0 0 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--settings-border);
+  color: var(--settings-muted);
+  font-size: 12px;
+  letter-spacing: 0.34em;
+}
+
+.settings-profile {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.settings-avatar {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--settings-pink);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--settings-pink);
+  font-size: 20px;
+  box-shadow: 0 0 24px rgba(255, 79, 188, 0.15);
+}
+
+.settings-outline-button,
+.settings-danger-button {
+  padding: 10px 16px;
+  border: 1px solid var(--settings-border);
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.settings-danger-button {
+  border-color: rgba(255, 81, 81, 0.4);
+  color: #ff5151;
+}
+
+.settings-hint {
+  margin-top: 10px;
+  color: var(--settings-muted);
+  font-size: 11px;
+}
+
+.settings-field {
+  display: grid;
+  gap: 10px;
+  color: var(--settings-muted);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+}
+
+.settings-field input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid var(--settings-border);
+  background: rgba(255, 255, 255, 0.045);
+  color: #ffffff;
+  padding: 0 14px;
+}
+
+.settings-label {
+  margin: 16px 0 10px;
+  color: var(--settings-muted);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+}
+
+.settings-accent-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--settings-muted);
+  font-size: 12px;
+}
+
+.settings-current-color,
+.settings-preset {
+  width: 32px;
+  height: 24px;
+  display: inline-block;
+  border: 1px solid var(--settings-border);
+}
+
+.settings-preset-row {
+  display: flex;
+  gap: 10px;
+}
+
+.settings-preset {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.settings-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.settings-stats-grid div {
+  padding: 18px;
+  border: 1px solid var(--settings-border);
+}
+
+.settings-stats-grid span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--settings-muted);
+  font-size: 12px;
+}
+
+.settings-stats-grid strong {
+  color: var(--settings-pink);
+  font-size: 22px;
+}
+
+.settings-account-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-aside {
+  position: sticky;
+  top: 124px;
+}
+
+.settings-preview {
+  border: 1px solid var(--settings-border);
+  padding: 14px;
+}
+
+.settings-preview__top,
+.settings-preview__tabs,
+.settings-preview__footer {
+  display: flex;
+  gap: 12px;
+  color: var(--settings-muted);
+  font-size: 10px;
+}
+
+.settings-preview__top span:first-child {
+  color: var(--settings-pink);
+}
+
+.settings-preview__tabs {
+  margin: 16px 0 12px;
+  border-bottom: 1px solid var(--settings-border);
+  padding-bottom: 8px;
+}
+
+.settings-preview__tabs span:first-child {
+  color: #ffffff;
+  border-bottom: 2px solid var(--settings-pink);
+}
+
+.settings-preview__box {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--settings-border);
+  color: var(--settings-muted);
+  font-size: 11px;
+}
+
+.settings-preview__box strong {
+  color: var(--settings-pink);
+}
+
+.settings-preview__footer {
+  margin-top: 12px;
+}
+
+.settings-preview__footer span,
+.settings-preview__footer strong {
+  height: 8px;
+  flex: 1;
+  border: 1px solid var(--settings-border);
+}
+
+.settings-preview__footer strong {
+  flex: 0 0 20px;
+  background: var(--settings-pink);
+}
+
+@media (max-width: 1080px) {
+  .settings-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-aside {
+    position: static;
+  }
+}
