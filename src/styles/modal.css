@@ -1,0 +1,320 @@
+/* ============================================================
+   YUPLACED — Modal
+   ============================================================ */
+
+.yn-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: yn-modal-fade 140ms ease-out;
+}
+
+@keyframes yn-modal-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.yn-modal-card {
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: #0d1117;
+  border: 1px solid var(--folder-border, rgba(255, 255, 255, 0.1));
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  animation: yn-modal-pop 160ms ease-out;
+}
+
+@keyframes yn-modal-pop {
+  from { transform: translateY(8px) scale(0.98); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+.yn-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 18px;
+  border-bottom: 1px solid var(--folder-border, rgba(255, 255, 255, 0.1));
+}
+
+.yn-modal-title {
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.yn-modal-close {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.46);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  font-family: inherit;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.yn-modal-close:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.yn-modal-body {
+  padding: 22px 24px;
+  overflow-y: auto;
+}
+
+.yn-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 24px 18px;
+  border-top: 1px solid var(--folder-border, rgba(255, 255, 255, 0.1));
+}
+
+.yn-modal-btn {
+  padding: 9px 20px;
+  border: 1px solid var(--folder-border, rgba(255, 255, 255, 0.16));
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.yn-modal-btn--ghost:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #ffffff;
+}
+
+.yn-modal-btn--primary {
+  border-color: var(--folder-accent, #ff4fbc);
+  color: var(--folder-accent, #ff4fbc);
+}
+
+.yn-modal-btn--primary:hover:not(:disabled) {
+  background: var(--folder-accent, #ff4fbc);
+  color: #000000;
+}
+
+.yn-modal-btn--primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Live preview chip ─────────────────────────────────────── */
+
+.yn-modal-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 22px;
+  border: 1px solid var(--folder-border, rgba(255, 255, 255, 0.1));
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.yn-modal-preview__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.yn-modal-preview__title {
+  flex: 1;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  word-break: break-word;
+}
+
+.yn-modal-preview__title--placeholder {
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.yn-modal-preview__pri {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border: 1px solid;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+/* ── Field ─────────────────────────────────────────────────── */
+
+.yn-modal-field {
+  margin-bottom: 18px;
+}
+
+.yn-modal-field:last-child {
+  margin-bottom: 0;
+}
+
+.yn-modal-label {
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.46);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+}
+
+.yn-modal-input,
+.yn-modal-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--folder-border, rgba(255, 255, 255, 0.1));
+  border-bottom-color: var(--folder-accent, #ff4fbc);
+  background: transparent;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  outline: none;
+  transition: border-color 160ms ease;
+}
+
+.yn-modal-input:focus,
+.yn-modal-textarea:focus {
+  border-color: var(--folder-accent, #ff4fbc);
+}
+
+.yn-modal-textarea {
+  resize: vertical;
+  min-height: 64px;
+  line-height: 1.6;
+}
+
+/* ── Priority / Status row ─────────────────────────────────── */
+
+.yn-modal-pri-row {
+  display: flex;
+  gap: 8px;
+}
+
+.yn-modal-pri-btn {
+  flex: 1;
+  padding: 8px 0;
+  border: 1px solid var(--folder-border, rgba(255, 255, 255, 0.1));
+  background: transparent;
+  color: rgba(255, 255, 255, 0.46);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.yn-modal-pri-btn:hover {
+  color: #ffffff;
+}
+
+/* ── Folder list ───────────────────────────────────────────── */
+
+.yn-modal-folder-list {
+  display: grid;
+  gap: 6px;
+}
+
+.yn-modal-folder-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--folder-border, rgba(255, 255, 255, 0.1));
+  background: transparent;
+  color: rgba(255, 255, 255, 0.46);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-align: left;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.yn-modal-folder-btn:hover {
+  color: #ffffff;
+}
+
+.yn-modal-folder-btn.is-active {
+  color: #ffffff;
+}
+
+.yn-modal-folder-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.yn-modal-folder-name {
+  flex: 1;
+}
+
+.yn-modal-folder-check {
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+/* ── Color row ─────────────────────────────────────────────── */
+
+.yn-modal-color-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.yn-modal-color-swatch {
+  width: 24px;
+  height: 24px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.yn-modal-color-swatch:hover {
+  transform: scale(1.1);
+}
+
+.yn-modal-color-swatch.is-active {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.yn-modal-color-custom {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.24);
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.46);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.yn-modal-color-custom input[type="color"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  opacity: 0;
+  cursor: pointer;
+}

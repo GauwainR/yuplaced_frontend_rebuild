@@ -6,6 +6,7 @@ type FolderSidebarProps = {
   tasks: Task[];
   selectedFolderId: number;
   onSelectFolder: (folderId: number) => void;
+  onCreateFolder: () => void;
 };
 
 export function FolderSidebar({
@@ -13,6 +14,7 @@ export function FolderSidebar({
   tasks,
   selectedFolderId,
   onSelectFolder,
+  onCreateFolder,
 }: FolderSidebarProps) {
   return (
     <aside className="folder-board-sidebar">
@@ -43,7 +45,11 @@ export function FolderSidebar({
         })}
       </div>
 
-      <button type="button" className="folder-board-sidebar__new">
+      <button
+        type="button"
+        className="folder-board-sidebar__new"
+        onClick={onCreateFolder}
+      >
         + NEW FOLDER
       </button>
     </aside>

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../../app/providers';
 import { FolderSidebar } from './FolderSidebar';
 import { FolderTaskCard } from './FolderTaskCard';
+import { CreateTaskModal } from './CreateTaskModal';
+import { CreateFolderModal } from './CreateFolderModal';
 import type { Task, TaskStatus } from '../../entities/task/model/types';
 
 type ViewMode = 'current' | 'kanban' | 'list';
@@ -19,12 +21,18 @@ const STATUS_LABELS: Record<TaskStatus, string> = {
 };
 
 export function FolderBoard() {
-  const { folders, tasks, toggleTask, addTask } = useApp();
+  const { folders, tasks, toggleTask, addTaskFull, addFolder } = useApp();
 
   const [selectedFolderId, setSelectedFolderId] = useState<number>(
     folders[0]?.id ?? 0,
   );
   const [viewMode, setViewMode] = useState<ViewMode>('kanban');
+
+  // Modals
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
+  const [taskModalDefaultStatus, setTaskModalDefaultStatus] =
+    useState<TaskStatus>('todo');
+  const [folderModalOpen, setFolderModalOpen] = useState(false);
 
   // Keep selection valid if folder list changes
   useEffect(() => {
@@ -46,11 +54,9 @@ export function FolderBoard() {
   const doneCount = folderTasks.filter((t) => t.status === 'done').length;
   const openCount = folderTasks.length - doneCount;
 
-  const handleAddTask = (status: TaskStatus = 'todo') => {
-    if (!selectedFolder) return;
-    const title = window.prompt('Task title:');
-    if (!title || !title.trim()) return;
-    addTask({ folderId: selectedFolder.id, title: title.trim(), status });
+  const openTaskModal = (status: TaskStatus = 'todo') => {
+    setTaskModalDefaultStatus(status);
+    setTaskModalOpen(true);
   };
 
   if (!selectedFolder) {
@@ -58,8 +64,24 @@ export function FolderBoard() {
       <section className="folder-board">
         <div className="folder-board-empty">
           <div className="folder-board-empty__title">No folders yet</div>
-          <p className="folder-board-empty__text">Create a folder to start.</p>
+          <p className="folder-board-empty__text">
+            Create your first folder to get started.
+          </p>
+          <button
+            type="button"
+            className="folder-board-add-task"
+            onClick={() => setFolderModalOpen(true)}
+            style={{ marginTop: 14 }}
+          >
+            + CREATE FOLDER
+          </button>
         </div>
+
+        <CreateFolderModal
+          open={folderModalOpen}
+          onClose={() => setFolderModalOpen(false)}
+          onCreate={(input) => addFolder(input)}
+        />
       </section>
     );
   }
@@ -71,6 +93,7 @@ export function FolderBoard() {
         tasks={tasks}
         selectedFolderId={selectedFolder.id}
         onSelectFolder={setSelectedFolderId}
+        onCreateFolder={() => setFolderModalOpen(true)}
       />
 
       <main className="folder-board-main">
@@ -95,7 +118,7 @@ export function FolderBoard() {
             <button
               type="button"
               className="folder-board-add-task"
-              onClick={() => handleAddTask('todo')}
+              onClick={() => openTaskModal('todo')}
             >
               + ADD TASK
             </button>
@@ -129,7 +152,7 @@ export function FolderBoard() {
         {viewMode === 'kanban' && (
           <KanbanView
             tasks={folderTasks}
-            onAddTask={handleAddTask}
+            onAddTask={openTaskModal}
             onToggleTask={toggleTask}
           />
         )}
@@ -138,6 +161,26 @@ export function FolderBoard() {
           <ListView tasks={folderTasks} onToggleTask={toggleTask} />
         )}
       </main>
+
+      <CreateTaskModal
+        open={taskModalOpen}
+        folders={folders}
+        defaultFolderId={selectedFolder.id}
+        defaultStatus={taskModalDefaultStatus}
+        onClose={() => setTaskModalOpen(false)}
+        onCreate={(input) => {
+          addTaskFull(input);
+          setSelectedFolderId(input.folderId);
+        }}
+      />
+
+      <CreateFolderModal
+        open={folderModalOpen}
+        onClose={() => setFolderModalOpen(false)}
+        onCreate={(input) => {
+          addFolder(input);
+        }}
+      />
     </section>
   );
 }
@@ -206,6 +249,11 @@ function KanbanView({
                   onClick={() => onToggleTask(t.id)}
                 >
                   <div className="folder-board-kanban__title">{t.title}</div>
+                  {t.comment && (
+                    <div className="folder-board-kanban__comment">
+                      {t.comment}
+                    </div>
+                  )}
                   <div className="folder-board-kanban__meta">
                     {t.tag && (
                       <span className="folder-board-tag">{t.tag}</span>

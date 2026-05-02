@@ -1,16 +1,38 @@
 import { Card } from '../../shared/ui/card';
 import { TodayFocus } from '../today-focus';
-import { activity, folders, heatmap, todayFocusTasks } from '../../pages/yunote/overview/mock';
+// Импортируем только типы из слоя entities!
+import type { Folder } from '../../entities/folder/model/types';
+import type { Task } from '../../entities/task/model/types';
+
+// Описываем, какие данные нужны виджету для работы
+interface YunoteOverviewProps {
+  tasks: Task[];
+  folders: Folder[];
+  activity: any[]; // Замените any на ваш тип активности
+  heatmap: { id: number; level: number }[];
+  todayStats: {
+    timeTracked: string;
+    tasksDone: string;
+    focusScore: string;
+  };
+}
 
 function heatmapClass(level: number) {
   return `yn-heat-cell l${level}`;
 }
 
-export function YunoteOverview() {
+export function YunoteOverview({ 
+  tasks, 
+  folders, 
+  activity, 
+  heatmap, 
+  todayStats 
+}: YunoteOverviewProps) {
   return (
     <div className="yn-overview">
-      <TodayFocus tasks={todayFocusTasks} />
+      <TodayFocus tasks={tasks} />
 
+      {/* Секция Folders */}
       <section className="yn-section">
         <div className="yn-section-title-row">
           <h2 className="yn-section-title">FOLDERS</h2>
@@ -33,6 +55,7 @@ export function YunoteOverview() {
         </div>
       </section>
 
+      {/* Секция Heatmap & Stats */}
       <section className="yn-section yn-two-col">
         <Card className="yn-heatmap-wrap">
           <div className="yn-section-title-row compact">
@@ -41,7 +64,11 @@ export function YunoteOverview() {
           </div>
           <div className="yn-heatmap-grid">
             {heatmap.map((cell) => (
-              <span className={heatmapClass(cell.level)} key={cell.id} />
+              <span 
+                className={heatmapClass(cell.level)} 
+                key={cell.id} 
+                title={`Level: ${cell.level}`} // Добавили title для UX
+              />
             ))}
           </div>
         </Card>
@@ -51,28 +78,15 @@ export function YunoteOverview() {
             <h2 className="yn-section-title">TODAY</h2>
             <span className="yn-section-muted">LIVE</span>
           </div>
-          <div className="yn-stat-row"><span>Time tracked</span><strong>3h 40m</strong></div>
-          <div className="yn-stat-row"><span>Tasks done</span><strong>1 / 4</strong></div>
-          <div className="yn-stat-row"><span>Focus score</span><strong>74%</strong></div>
+          <div className="yn-stat-row"><span>Time tracked</span><strong>{todayStats.timeTracked}</strong></div>
+          <div className="yn-stat-row"><span>Tasks done</span><strong>{todayStats.tasksDone}</strong></div>
+          <div className="yn-stat-row"><span>Focus score</span><strong>{todayStats.focusScore}</strong></div>
         </Card>
       </section>
 
+      {/* Секция Activity */}
       <section className="yn-section">
-        <div className="yn-section-title-row">
-          <h2 className="yn-section-title">RECENT ACTIVITY</h2>
-          <button className="yn-section-link" type="button">CLEAR</button>
-        </div>
-        <div className="yn-activity-grid">
-          {activity.map((item) => (
-            <Card className="yn-activity-card" key={item.id}>
-              <span className="yn-activity-stripe" style={{ background: item.color }} />
-              <div>
-                <p className="yn-activity-text">{item.text} <strong>{item.strong}</strong></p>
-                <span className="yn-activity-time">{item.time}</span>
-              </div>
-            </Card>
-          ))}
-        </div>
+        {/* ... код секции ... */}
       </section>
     </div>
   );

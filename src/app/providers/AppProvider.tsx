@@ -17,7 +17,7 @@ import {
 } from '../../entities/pomodoro/model/mockPomodoro';
 import { mockUserSettings } from '../../entities/settings/model/mockSettings';
 import type { Folder } from '../../entities/folder/model/types';
-import type { Task, TaskStatus } from '../../entities/task/model/types';
+import type { Task, TaskPriority, TaskStatus } from '../../entities/task/model/types';
 import type { DayReport, NextTask } from '../../entities/day-report/model/types';
 import type {
   PomodoroSession,
@@ -41,7 +41,13 @@ type AppContextValue = {
 
   // Tasks
   toggleTask: (taskId: number) => void;
-  addTask: (input: { folderId: number; title: string; status?: TaskStatus }) => void;
+  addTaskFull: (input: {
+    folderId: number;
+    title: string;
+    priority: TaskPriority;
+    comment: string;
+    status: TaskStatus;
+  }) => void;
 
   // Folders
   addFolder: (input: { name: string; color: string }) => void;
@@ -85,15 +91,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const addTask = useCallback(
+  const addTaskFull = useCallback(
     ({
       folderId,
       title,
-      status = 'todo',
+      priority,
+      comment,
+      status,
     }: {
       folderId: number;
       title: string;
-      status?: TaskStatus;
+      priority: TaskPriority;
+      comment: string;
+      status: TaskStatus;
     }) => {
       const value = title.trim();
       if (!value) return;
@@ -104,9 +114,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           folderId,
           title: value,
           tag: '',
-          priority: 'MED',
+          priority,
           status,
           time: '—',
+          comment: comment.trim() || undefined,
         },
       ]);
     },
@@ -219,7 +230,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       pomodoro,
       settings,
       toggleTask,
-      addTask,
+      addTaskFull,
       addFolder,
       setActiveDay,
       addDoneItem,
@@ -239,7 +250,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       pomodoro,
       settings,
       toggleTask,
-      addTask,
+      addTaskFull,
       addFolder,
       setActiveDay,
       addDoneItem,
