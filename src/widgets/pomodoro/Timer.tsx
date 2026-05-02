@@ -4,6 +4,8 @@ type Props = {
   phase: 'work' | 'break';
   running: boolean;
   accentColor: string;
+  taskTitle?: string | null;
+  folderColor?: string | null;
 };
 
 const RADIUS = 90;
@@ -15,7 +17,15 @@ function fmt(s: number): string {
   return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 }
 
-export function Timer({ secLeft, totalSec, phase, running, accentColor }: Props) {
+export function Timer({
+  secLeft,
+  totalSec,
+  phase,
+  running,
+  accentColor,
+  taskTitle,
+  folderColor,
+}: Props) {
   const progress = totalSec === 0 ? 0 : 1 - secLeft / totalSec;
   const strokeColor = phase === 'work' ? accentColor : 'var(--pomodoro-green)';
   const phaseLabel = phase === 'work' ? 'FOCUS' : 'BREAK';
@@ -54,6 +64,17 @@ export function Timer({ secLeft, totalSec, phase, running, accentColor }: Props)
         <span className="pomodoro-mode" style={{ color: strokeColor }}>
           {phaseLabel}
         </span>
+        {taskTitle && (
+          <span className="pomodoro-task-label">
+            {folderColor && (
+              <span
+                className="pomodoro-task-dot"
+                style={{ backgroundColor: folderColor }}
+              />
+            )}
+            {taskTitle}
+          </span>
+        )}
       </div>
     </div>
   );

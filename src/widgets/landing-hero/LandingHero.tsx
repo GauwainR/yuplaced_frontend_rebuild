@@ -1,13 +1,17 @@
+import { Link } from 'react-router-dom';
 import { Button, ButtonLink } from '../../shared/ui/button';
 import { routes } from '../../shared/config/routes';
+import { isLoggedIn } from '../../shared/api/authApi';
 
 const apps = [
-  { name: 'YUNOTE', status: 'AVAILABLE', active: true },
-  { name: 'YUCLOUD', status: 'COMING SOON', active: false },
-  { name: 'YUNA', status: 'COMING SOON', active: false },
+  { name: 'YUNOTE', status: 'AVAILABLE', active: true, to: routes.yunoteOverview },
+  { name: 'YUCLOUD', status: 'COMING SOON', active: false, to: null },
+  { name: 'YUNA', status: 'COMING SOON', active: false, to: null },
 ];
 
 export function LandingHero() {
+  const loggedIn = isLoggedIn();
+
   return (
     <section id="hero">
       <div className="geo">
@@ -29,8 +33,18 @@ export function LandingHero() {
       <div className="hero-app-pills">
         {apps.map((app) => (
           <div className="app-pill-wrap" key={app.name}>
-            <div className={app.active ? 'app-pill active' : 'app-pill'}>{app.name}</div>
-            <span className={app.active ? 'app-pill-status active' : 'app-pill-status'}>{app.status}</span>
+            {app.to ? (
+              <Link to={app.to} className={app.active ? 'app-pill active' : 'app-pill'}>
+                {app.name}
+              </Link>
+            ) : (
+              <div className={app.active ? 'app-pill active' : 'app-pill'}>
+                {app.name}
+              </div>
+            )}
+            <span className={app.active ? 'app-pill-status active' : 'app-pill-status'}>
+              {app.status}
+            </span>
           </div>
         ))}
       </div>
@@ -38,14 +52,25 @@ export function LandingHero() {
       <div className="hero-divider" />
 
       <div className="hero-ctas">
-        <ButtonLink variant="primary" to={routes.signup}>Get started</ButtonLink>
-        <Button variant="secondary" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
+        {!loggedIn && (
+          <ButtonLink variant="primary" to={routes.signup}>
+            Get started
+          </ButtonLink>
+        )}
+        <Button
+          variant="secondary"
+          onClick={() =>
+            window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
+          }
+        >
           Explore apps
         </Button>
       </div>
 
       <div className="scroll-hint-wrap">
-        <div className="scroll-hint"><div className="scroll-hint-line" /></div>
+        <div className="scroll-hint">
+          <div className="scroll-hint-line" />
+        </div>
       </div>
     </section>
   );

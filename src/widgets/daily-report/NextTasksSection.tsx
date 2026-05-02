@@ -4,110 +4,94 @@ import type { NextTask } from '../../entities/day-report/model/types';
 
 type Props = {
   tasks: NextTask[];
+  open: boolean;
+  onToggle: () => void;
 };
 
-export function NextTasksSection({ tasks }: Props) {
+export function NextTasksSection({ tasks, open, onToggle }: Props) {
   const { addNextTask, removeNextTask, promoteSuggested } = useApp();
   const [draft, setDraft] = useState('');
-  const [adding, setAdding] = useState(false);
 
   const regular = tasks.filter((t) => !t.suggested);
   const suggested = tasks.filter((t) => t.suggested);
 
   const submit = () => {
-    if (!draft.trim()) {
-      setAdding(false);
-      return;
-    }
+    if (!draft.trim()) return;
     addNextTask(draft);
     setDraft('');
-    setAdding(false);
   };
 
   const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') submit();
-    if (e.key === 'Escape') {
-      setDraft('');
-      setAdding(false);
-    }
   };
 
   return (
-    <section className="daily-report-panel daily-report-panel--next">
-      <header className="daily-report-panel__header">
-        <h2>NEXT TASKS</h2>
-        <button
-          type="button"
-          className="daily-report-panel__add"
-          onClick={() => setAdding((v) => !v)}
-          aria-label="Add next task"
-        >
-          +
-        </button>
+    <section className={`collapsible-section ${open ? 'expanded' : ''}`}>
+      <header className="coll-header" onClick={onToggle}>
+        <div className="coll-header__title">
+          <span className="ds-label purple">NEXT</span>
+          {!open && (
+            <span className="coll-summary">{regular.length} planned</span>
+          )}
+        </div>
+        <span className={`coll-chevron ${open ? 'open' : ''}`}>▾</span>
       </header>
 
-      <div className="daily-report-list">
-        {regular.map((task) => (
-          <div key={task.id} className="daily-report-check-row">
-            <span className="daily-report-checkbox" />
-            <span className="daily-report-check-row__text">{task.title}</span>
+      {open && (
+        <div className="coll-body fade-in">
+          {regular.map((task) => (
+            <div key={task.id} className="b-task">
+              <div className="b-check" aria-hidden />
+              <span className="b-text">{task.title}</span>
+              <button
+                type="button"
+                className="b-task__del"
+                onClick={() => removeNextTask(task.id)}
+                aria-label="Remove"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+
+          <div className="add-row-s">
+            <input
+              className="add-inp"
+              placeholder="Что дальше?"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={handleKey}
+            />
             <button
               type="button"
-              className="daily-report-row-del"
-              onClick={() => removeNextTask(task.id)}
-              aria-label="Remove"
+              className="add-sub"
+              onClick={submit}
+              aria-label="Add"
             >
-              ×
+              ↵
             </button>
           </div>
-        ))}
-      </div>
 
-      {adding ? (
-        <div className="daily-report-add-row">
-          <input
-            autoFocus
-            className="daily-report-add-input"
-            placeholder="Что дальше?"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onBlur={submit}
-            onKeyDown={handleKey}
-          />
-          <button
-            type="button"
-            className="daily-report-add-submit"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={submit}
-          >
-            ↵
-          </button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          className="daily-report-inline-input"
-          onClick={() => setAdding(true)}
-        >
-          Что дальше?
-        </button>
-      )}
+          {suggested.length > 0 && (
+            <div className="suggested-block">
+              <div className="suggested-label">SUGGESTED</div>
 
-      {suggested.length > 0 && (
-        <div className="daily-report-suggested">
-          <div className="daily-report-suggested__title">SUGGESTED</div>
-
-          {suggested.map((task) => (
-            <button
-              key={task.id}
-              type="button"
-              className="daily-report-suggested__item"
-              onClick={() => promoteSuggested(task.id)}
-            >
-              <span>→ {task.title}</span>
-              <span>+</span>
-            </button>
-          ))}
+              {suggested.map((task) => (
+                <div key={task.id} className="suggested-item">
+                  <span className="suggested-item__arrow">→</span>
+                  <span className="suggested-item__text">{task.title}</span>
+                  <button
+                    type="button"
+                    className="suggested-item__add"
+                    onClick={() => promoteSuggested(task.id)}
+                    aria-label="Add to next"
+                  >
+                    +
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>

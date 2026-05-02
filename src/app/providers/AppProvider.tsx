@@ -17,7 +17,7 @@ import {
 } from '../../entities/pomodoro/model/mockPomodoro';
 import { mockUserSettings } from '../../entities/settings/model/mockSettings';
 import type { Folder } from '../../entities/folder/model/types';
-import type { Task, TaskPriority, TaskStatus } from '../../entities/task/model/types';
+import type { Task, TaskLogEntry, TaskPriority, TaskStatus } from '../../entities/task/model/types';
 import type { DayReport, NextTask } from '../../entities/day-report/model/types';
 import type {
   PomodoroSession,
@@ -41,6 +41,8 @@ type AppContextValue = {
 
   // Tasks
   toggleTask: (taskId: number) => void;
+  moveTask: (taskId: number, newStatus: TaskStatus) => void;
+  updateTask: (task: Task) => void;
   addTaskFull: (input: {
     folderId: number;
     title: string;
@@ -88,6 +90,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
           ? { ...t, status: t.status === 'done' ? 'todo' : 'done' }
           : t,
       ),
+    );
+  }, []);
+
+  const moveTask = useCallback((taskId: number, newStatus: TaskStatus) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
+    );
+  }, []);
+
+  const updateTask = useCallback((updated: Task) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === updated.id ? updated : t)),
     );
   }, []);
 
@@ -230,6 +244,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       pomodoro,
       settings,
       toggleTask,
+      moveTask,
+      updateTask,
       addTaskFull,
       addFolder,
       setActiveDay,
@@ -250,6 +266,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       pomodoro,
       settings,
       toggleTask,
+      moveTask,
+      updateTask,
       addTaskFull,
       addFolder,
       setActiveDay,

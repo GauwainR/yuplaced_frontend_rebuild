@@ -3,9 +3,11 @@ import type { DayReport } from '../../entities/day-report/model/types';
 
 type Props = {
   time: DayReport['time'];
+  open: boolean;
+  onToggle: () => void;
 };
 
-export function TimeSection({ time }: Props) {
+export function TimeSection({ time, open, onToggle }: Props) {
   const { removeTimeEntry } = useApp();
 
   const handleRemove = (index: number) => {
@@ -15,32 +17,37 @@ export function TimeSection({ time }: Props) {
   };
 
   return (
-    <section className="daily-report-panel daily-report-panel--time">
-      <header className="daily-report-panel__header">
-        <h2>TIME</h2>
-        <span className="daily-report-panel__hint">{time.total}</span>
+    <section className={`collapsible-section ${open ? 'expanded' : ''}`}>
+      <header className="coll-header" onClick={onToggle}>
+        <div className="coll-header__title">
+          <span className="ds-label orange">TIME</span>
+          {!open && <span className="coll-summary">{time.total}</span>}
+        </div>
+        <span className={`coll-chevron ${open ? 'open' : ''}`}>▾</span>
       </header>
 
-      <div className="daily-report-time-total">{time.total}</div>
+      {open && (
+        <div className="coll-body fade-in">
+          <div className="time-total">{time.total}</div>
 
-      <div className="daily-report-time-list">
-        {time.entries.length === 0 && (
-          <div className="daily-report-empty">No time entries yet</div>
-        )}
+          {time.entries.length === 0 && (
+            <div className="coll-empty">No time entries yet</div>
+          )}
 
-        {time.entries.map((entry, i) => (
-          <button
-            key={`${entry.label}-${i}`}
-            type="button"
-            className="daily-report-time-row"
-            onClick={() => handleRemove(i)}
-            title="Click to remove"
-          >
-            <span>{entry.label}</span>
-            <strong>{entry.duration}</strong>
-          </button>
-        ))}
-      </div>
+          {time.entries.map((entry, i) => (
+            <button
+              key={`${entry.label}-${i}`}
+              type="button"
+              className="time-entry-row"
+              onClick={() => handleRemove(i)}
+              title="Click to remove"
+            >
+              <span className="time-entry-row__label">{entry.label}</span>
+              <span className="time-entry-row__val">{entry.duration}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

@@ -77,6 +77,38 @@ nav {
 }
 .nav-auth a:hover     { color: #fff; }
 .nav-auth a.signup    { color: var(--pink); }
+
+.nav-avatar {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--pink);
+  border-radius: 50%;
+  background: rgba(224, 64, 160, 0.08);
+  color: var(--pink);
+  font-size: 13px;
+  letter-spacing: 0;
+  text-decoration: none;
+  transition: background .2s, box-shadow .2s;
+}
+
+.nav-avatar:hover {
+  background: rgba(224, 64, 160, 0.18);
+  box-shadow: 0 0 12px rgba(224, 64, 160, 0.3);
+  color: var(--pink);
+}
+
+a.app-pill {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+a.app-pill.active:hover {
+  background: rgba(224, 64, 160, 0.06);
+}
+
 .nav-back {
   font-size: 9px; letter-spacing: 2px; color: var(--muted);
   text-decoration: none; transition: color .2s;

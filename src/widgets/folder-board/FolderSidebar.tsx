@@ -1,6 +1,9 @@
 import type { Folder } from '../../entities/folder/model/types';
 import type { Task } from '../../entities/task/model/types';
 
+/** Sentinel id for the "All tasks" pseudo-folder. */
+export const ALL_FOLDER_ID = 0;
+
 type FolderSidebarProps = {
   folders: Folder[];
   tasks: Task[];
@@ -16,14 +19,35 @@ export function FolderSidebar({
   onSelectFolder,
   onCreateFolder,
 }: FolderSidebarProps) {
+  const allActive = selectedFolderId === ALL_FOLDER_ID;
+
   return (
     <aside className="folder-board-sidebar">
       <div className="folder-board-sidebar__eyebrow">FOLDERS</div>
 
       <div className="folder-board-sidebar__list">
+        {/* ALL pseudo-folder */}
+        <button
+          type="button"
+          className={`folder-board-sidebar__item ${
+            allActive ? 'folder-board-sidebar__item--active' : ''
+          }`}
+          onClick={() => onSelectFolder(ALL_FOLDER_ID)}
+        >
+          <span
+            className="folder-board-sidebar__dot"
+            style={{ backgroundColor: '#888' }}
+          />
+          <span className="folder-board-sidebar__name">ALL</span>
+          <span className="folder-board-sidebar__count">{tasks.length}</span>
+        </button>
+
+        {/* Real folders */}
         {folders.map((folder) => {
           const isActive = folder.id === selectedFolderId;
-          const taskCount = tasks.filter((task) => task.folderId === folder.id).length;
+          const taskCount = tasks.filter(
+            (task) => task.folderId === folder.id,
+          ).length;
 
           return (
             <button

@@ -62,6 +62,164 @@
   letter-spacing: 0.42em;
 }
 
+.pomodoro-task-label {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 140px;
+  color: var(--pomodoro-muted);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pomodoro-task-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Task Picker ───────────────────────────────────────────── */
+
+.pomo-task-picker {
+  position: relative;
+  width: 100%;
+}
+
+.pomo-task-picker--empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px dashed var(--pomodoro-border);
+}
+
+.pomo-task-picker__icon {
+  color: var(--pomodoro-muted);
+  font-size: 12px;
+}
+
+.pomo-task-picker__hint {
+  color: var(--pomodoro-muted);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.pomo-task-picker.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.pomo-task-picker__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid var(--pomodoro-border);
+  background: transparent;
+  color: var(--pomodoro-text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  text-align: left;
+  transition: border-color 160ms ease;
+}
+
+.pomo-task-picker__trigger:hover {
+  border-color: var(--pomodoro-pink);
+}
+
+.pomo-task-picker__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pomo-task-picker__title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pomo-task-picker__chevron {
+  color: var(--pomodoro-muted);
+  font-size: 10px;
+  transition: transform 200ms ease;
+}
+
+.pomo-task-picker__chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.pomo-task-picker__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--pomodoro-border);
+  background: #0d1117;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  animation: pomo-picker-fade 120ms ease-out;
+}
+
+@keyframes pomo-picker-fade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pomo-task-picker__option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: transparent;
+  color: var(--pomodoro-text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  text-align: left;
+  transition: background 120ms ease;
+}
+
+.pomo-task-picker__option:last-child {
+  border-bottom: none;
+}
+
+.pomo-task-picker__option:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pomo-task-picker__option.is-active {
+  background: rgba(224, 64, 160, 0.08);
+}
+
+.pomo-task-picker__option-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pomo-task-picker__check {
+  color: var(--pomodoro-pink);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
 /* ── Controls ──────────────────────────────────────────────── */
 
 .pomodoro-controls {

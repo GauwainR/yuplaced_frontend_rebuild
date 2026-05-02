@@ -9,48 +9,53 @@ type Props = {
 export function DailyReportSidebar({ recentDays, stats }: Props) {
   const { setActiveDay } = useApp();
 
+  // Track which row is "today" so we can show the legacy ● dot.
+  // The mock marks the latest entry as active by default; treat that as "today".
+  const todayId = recentDays.find((d) => d.active)?.id;
+
   return (
-    <aside className="daily-report-sidebar">
-      <section className="daily-report-sidebar__section">
-        <div className="daily-report-sidebar__title">RECENT DAYS</div>
+    <aside className="daily-sidebar">
+      <section className="daily-sidebar-section">
+        <div className="daily-sidebar-label">RECENT DAYS</div>
 
-        <div className="daily-report-days">
-          {recentDays.length === 0 && (
-            <div className="daily-report-empty">No days yet</div>
-          )}
+        {recentDays.length === 0 && (
+          <div className="daily-sidebar-empty">No days yet</div>
+        )}
 
-          {recentDays.map((day) => (
+        {recentDays.map((day) => {
+          const isActive = day.active === true;
+          const isToday = day.id === todayId;
+          return (
             <button
               key={day.id}
               type="button"
-              className={`daily-report-day ${
-                day.active ? 'daily-report-day--active' : ''
-              }`}
+              className={`day-item-ob ${isActive ? 'active' : ''}`}
               onClick={() => setActiveDay(day.id)}
             >
-              <span>{day.label}</span>
-              <span>{day.entries}</span>
+              <span className="dn">
+                {day.label}
+                {isToday && <span className="day-item-ob__today-dot">●</span>}
+              </span>
+              <span className="dc">{day.entries}</span>
             </button>
-          ))}
-        </div>
+          );
+        })}
       </section>
 
-      <section className="daily-report-sidebar__section daily-report-sidebar__section--stats">
-        <div className="daily-report-sidebar__title">ALL TIME</div>
+      <section className="daily-sidebar-section">
+        <div className="daily-sidebar-label">ALL TIME</div>
 
-        <div className="daily-report-stat">
-          <span>Time tracked</span>
-          <strong>{stats.timeTracked}</strong>
+        <div className="obs-stat">
+          <span className="obs-stat-l">Time tracked</span>
+          <span className="obs-stat-v">{stats.timeTracked}</span>
         </div>
-
-        <div className="daily-report-stat">
-          <span>Tasks done</span>
-          <strong>{stats.tasksDone}</strong>
+        <div className="obs-stat">
+          <span className="obs-stat-l">Tasks done</span>
+          <span className="obs-stat-v">{stats.tasksDone}</span>
         </div>
-
-        <div className="daily-report-stat">
-          <span>Days logged</span>
-          <strong>{stats.daysLogged}</strong>
+        <div className="obs-stat">
+          <span className="obs-stat-l">Days logged</span>
+          <span className="obs-stat-v">{stats.daysLogged}</span>
         </div>
       </section>
     </aside>

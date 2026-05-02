@@ -1,7 +1,16 @@
 import { Link } from 'react-router-dom';
 import { routes } from '../../shared/config/routes';
+import { useApp } from '../../app/providers';
 
 export function YunoteHeader() {
+  const { settings } = useApp();
+  const initial = settings.nickname.trim()[0]?.toUpperCase() ?? '?';
+
+  const today = new Date();
+  const dateLabel = today
+    .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    .toUpperCase();
+
   return (
     <header className="yn-topbar">
       <div className="yn-topbar-brand">
@@ -11,15 +20,14 @@ export function YunoteHeader() {
       </div>
 
       <div className="yn-topbar-center">
-        <button className="yn-day-nav-btn" type="button">◀</button>
-        <span className="yn-day-label">APR 30, 2026</span>
-        <button className="yn-day-nav-btn" type="button">▶</button>
+        <span className="yn-day-label">{dateLabel}</span>
         <span className="yn-today-badge">TODAY</span>
       </div>
 
       <div className="yn-topbar-right">
-        <button className="yn-btn-new" type="button">+ NEW TASK</button>
-        <div className="yn-user-icon">A</div>
+        <Link to={routes.yunoteSettings} className="yn-user-icon" title={settings.nickname}>
+          {initial}
+        </Link>
       </div>
     </header>
   );

@@ -3,27 +3,32 @@ import { useApp } from '../../app/providers';
 
 type Props = {
   value: string;
+  doneItems: string[];
 };
 
 const FALLBACK_INSIGHTS = [
   'Продуктивный день — каждая задача приближает к цели.',
-  'Один шаг вперёд — лучше десятка размышлений.',
+  'Один шаг вперёд лучше десятка размышлений.',
   'Сегодня было сделано больше, чем кажется.',
   'Маленькие победы складываются в большой результат.',
   'Сосредоточенность сегодня — фундамент завтра.',
 ];
 
-export function ValueSection({ value }: Props) {
+export function ValueSection({ value, doneItems }: Props) {
   const { updateValue } = useApp();
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Legacy uses window.claude.complete to generate an AI insight from doneItems.
+  // That API is not available outside the dashboard sandbox, so we use a local
+  // fallback rotation. When backend wiring lands, swap this for a fetch().
   const handleGenerate = async () => {
     setLoading(true);
     setEditing(false);
-    // Backend AI insight endpoint is not wired yet — use fallback rotation.
-    // Replace this with a fetch() to your backend when the endpoint is ready.
     await new Promise((resolve) => setTimeout(resolve, 350));
+    // doneItems will be used by the real backend prompt — referenced here so
+    // the parameter is not flagged as unused once you wire the real call.
+    void doneItems;
     const next =
       FALLBACK_INSIGHTS[Math.floor(Math.random() * FALLBACK_INSIGHTS.length)];
     updateValue(next);
@@ -31,19 +36,19 @@ export function ValueSection({ value }: Props) {
   };
 
   return (
-    <section className="daily-report-panel daily-report-panel--value">
-      <header className="daily-report-panel__header">
-        <h2>VALUE</h2>
-        <span className="daily-report-panel__hint">автоматически</span>
+    <section className="value-section">
+      <header className="ds-header">
+        <span className="ds-label pink">VALUE</span>
+        <span className="ds-meta">автоматически</span>
       </header>
 
       {!editing ? (
-        <p className={`daily-report-value ${loading ? 'is-loading' : ''}`}>
+        <div className={`value-insight fade-in ${loading ? 'loading' : ''}`}>
           {loading ? 'генерация…' : value ? `"${value}"` : '—'}
-        </p>
+        </div>
       ) : (
         <textarea
-          className="daily-report-value-edit"
+          className="value-edit-area"
           rows={3}
           value={value}
           onChange={(e) => updateValue(e.target.value)}
@@ -51,11 +56,20 @@ export function ValueSection({ value }: Props) {
         />
       )}
 
-      <div className="daily-report-actions">
-        <button type="button" onClick={handleGenerate} disabled={loading}>
+      <div className="value-actions">
+        <button
+          type="button"
+          className="value-btn gen"
+          onClick={handleGenerate}
+          disabled={loading}
+        >
           {loading ? '…' : '⟳ GENERATE'}
         </button>
-        <button type="button" onClick={() => setEditing((v) => !v)}>
+        <button
+          type="button"
+          className="value-btn"
+          onClick={() => setEditing((v) => !v)}
+        >
           {editing ? 'SAVE' : 'EDIT'}
         </button>
       </div>

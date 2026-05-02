@@ -8,48 +8,34 @@ type Props = {
 export function DoneSection({ items }: Props) {
   const { addDoneItem, removeDoneItem } = useApp();
   const [draft, setDraft] = useState('');
-  const [adding, setAdding] = useState(false);
 
   const submit = () => {
-    if (!draft.trim()) {
-      setAdding(false);
-      return;
-    }
+    if (!draft.trim()) return;
     addDoneItem(draft);
     setDraft('');
-    setAdding(false);
   };
 
   const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') submit();
-    if (e.key === 'Escape') {
-      setDraft('');
-      setAdding(false);
-    }
   };
 
   return (
-    <section className="daily-report-panel daily-report-panel--done">
-      <header className="daily-report-panel__header">
-        <h2>DONE</h2>
-        <button
-          type="button"
-          className="daily-report-panel__add"
-          onClick={() => setAdding((v) => !v)}
-          aria-label="Add a completed task"
-        >
-          +
-        </button>
+    <section className="done-section">
+      <header className="ds-header">
+        <span className="ds-label green">DONE</span>
+        <span className="ds-meta">{items.length} tasks</span>
       </header>
 
-      <div className="daily-report-list">
-        {items.map((item, i) => (
-          <div key={`${item}-${i}`} className="daily-report-check-row">
-            <span className="daily-report-checkbox daily-report-checkbox--checked" />
-            <span className="daily-report-check-row__text is-done">{item}</span>
+      <div className="ds-body">
+        {items.map((text, i) => (
+          <div key={`${text}-${i}`} className="b-task">
+            <div className="b-check on" aria-hidden>
+              ✓
+            </div>
+            <span className="b-text striked">{text}</span>
             <button
               type="button"
-              className="daily-report-row-del"
+              className="b-task__del"
               onClick={() => removeDoneItem(i)}
               aria-label="Remove"
             >
@@ -57,37 +43,25 @@ export function DoneSection({ items }: Props) {
             </button>
           </div>
         ))}
-      </div>
 
-      {adding ? (
-        <div className="daily-report-add-row">
+        <div className="add-row-s">
           <input
-            autoFocus
-            className="daily-report-add-input"
+            className="add-inp"
             placeholder="Что выполнено?"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            onBlur={submit}
             onKeyDown={handleKey}
           />
           <button
             type="button"
-            className="daily-report-add-submit"
-            onMouseDown={(e) => e.preventDefault()}
+            className="add-sub"
             onClick={submit}
+            aria-label="Add"
           >
             ↵
           </button>
         </div>
-      ) : (
-        <button
-          type="button"
-          className="daily-report-inline-input"
-          onClick={() => setAdding(true)}
-        >
-          Что выполнено?
-        </button>
-      )}
+      </div>
     </section>
   );
 }

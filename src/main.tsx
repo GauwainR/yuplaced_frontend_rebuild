@@ -8,6 +8,7 @@ import './styles/daily-report.css';
 import './styles/pomodoro.css';
 import './styles/settings.css';
 import './styles/modal.css';
+import './styles/overview.css';
 import './styles/folder-board-fix.css';
 import './styles/folder-board-ux.css';
 
