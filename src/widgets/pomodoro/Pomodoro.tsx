@@ -13,7 +13,7 @@ import type { Task } from '../../entities/task/model/types';
 type Phase = 'work' | 'break';
 
 export function Pomodoro() {
-  const { pomodoro, tasks, folders, settings: userSettings } = useApp();
+  const { pomodoro, tasks, folders, settings: userSettings, addTimeToTask } = useApp();
 
   // ── Settings ───────────────────────────────────────────────
   const [workMin, setWorkMin] = useState(pomodoro.settings.workDuration);
@@ -64,6 +64,8 @@ export function Pomodoro() {
   const [log, setLog] = useState<PomodoroSession[]>(pomodoro.sessions);
 
   const intervalRef = useRef<number | null>(null);
+  const selectedTaskRef = useRef<number | null>(selectedTaskId);
+  selectedTaskRef.current = selectedTaskId;
   const totalSec = phase === 'work' ? workMin * 60 : breakMin * 60;
 
   // Resize sessions array if dailyGoal changes
@@ -125,6 +127,12 @@ export function Pomodoro() {
             duration: `${String(workMin).padStart(2, '0')}:00`,
           };
           setLog((prev) => [newEntry, ...prev].slice(0, 12));
+
+          // Track time on the attached task
+          if (selectedTaskRef.current !== null) {
+            addTimeToTask(selectedTaskRef.current, workMin);
+          }
+
           setPhase('break');
           return breakMin * 60;
         } else {
@@ -195,7 +203,7 @@ export function Pomodoro() {
       </main>
 
       <aside className="pomodoro-sidebar">
-        <section className="pomodoro-side-card">
+        <section className="pomodoro-side-card pomodoro-side-card--picker">
           <h2>CURRENT TASK</h2>
           <TaskPicker
             tasks={inProgressTasks}

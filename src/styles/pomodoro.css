@@ -299,6 +299,12 @@
   background: rgba(255, 255, 255, 0.018);
 }
 
+.pomodoro-side-card--picker {
+  position: relative;
+  z-index: 10;
+  overflow: visible;
+}
+
 .pomodoro-side-card h2 {
   margin: 0 0 22px;
   color: var(--pomodoro-muted);

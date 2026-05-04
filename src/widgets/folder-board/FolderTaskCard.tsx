@@ -1,5 +1,6 @@
 import { useApp } from '../../app/providers';
 import type { Task } from '../../entities/task/model/types';
+import { fmtTracked } from '../../entities/task/model/types';
 
 type Props = {
   task: Task;
@@ -36,8 +37,8 @@ export function FolderTaskCard({ task, folderColor }: Props) {
               {task.priority}
             </span>
           )}
-          {task.time && task.time !== '—' && (
-            <span className="folder-board-time">⏱ {task.time}</span>
+          {task.trackedMin > 0 && (
+            <span className="folder-board-time">⏱ {fmtTracked(task.trackedMin)}</span>
           )}
         </div>
       </div>

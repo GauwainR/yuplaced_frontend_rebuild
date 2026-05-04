@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Modal } from '../../shared/ui/modal';
+import type { Folder } from '../../entities/folder/model/types';
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onCreate: (input: { name: string; color: string }) => void;
+  /** If provided, the modal is in edit mode. */
+  editFolder?: Folder | null;
+  onUpdate?: (id: number, patch: { name: string; color: string }) => void;
 };
 
 const PRESET_COLORS = [
@@ -18,21 +22,37 @@ const PRESET_COLORS = [
   '#ffffff',
 ];
 
-export function CreateFolderModal({ open, onClose, onCreate }: Props) {
+export function CreateFolderModal({
+  open,
+  onClose,
+  onCreate,
+  editFolder,
+  onUpdate,
+}: Props) {
+  const isEdit = !!editFolder;
   const [name, setName] = useState('');
   const [color, setColor] = useState(PRESET_COLORS[0]);
 
   useEffect(() => {
     if (!open) return;
-    setName('');
-    setColor(PRESET_COLORS[0]);
-  }, [open]);
+    if (editFolder) {
+      setName(editFolder.name);
+      setColor(editFolder.color);
+    } else {
+      setName('');
+      setColor(PRESET_COLORS[0]);
+    }
+  }, [open, editFolder]);
 
   const canSubmit = name.trim().length > 0;
 
-  const handleCreate = () => {
+  const handleSubmit = () => {
     if (!canSubmit) return;
-    onCreate({ name: name.trim(), color });
+    if (isEdit && editFolder && onUpdate) {
+      onUpdate(editFolder.id, { name: name.trim(), color });
+    } else {
+      onCreate({ name: name.trim(), color });
+    }
     onClose();
   };
 
@@ -40,7 +60,7 @@ export function CreateFolderModal({ open, onClose, onCreate }: Props) {
     <Modal
       open={open}
       onClose={onClose}
-      title="NEW FOLDER"
+      title={isEdit ? 'EDIT FOLDER' : 'NEW FOLDER'}
       width={420}
       footer={
         <>
@@ -54,10 +74,10 @@ export function CreateFolderModal({ open, onClose, onCreate }: Props) {
           <button
             type="button"
             className="yn-modal-btn yn-modal-btn--primary"
-            onClick={handleCreate}
+            onClick={handleSubmit}
             disabled={!canSubmit}
           >
-            CREATE
+            {isEdit ? 'SAVE' : 'CREATE'}
           </button>
         </>
       }
@@ -84,7 +104,7 @@ export function CreateFolderModal({ open, onClose, onCreate }: Props) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && canSubmit) handleCreate();
+            if (e.key === 'Enter' && canSubmit) handleSubmit();
           }}
           placeholder="e.g. WORK"
         />

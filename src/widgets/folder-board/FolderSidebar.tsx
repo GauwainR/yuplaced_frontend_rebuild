@@ -10,6 +10,7 @@ type FolderSidebarProps = {
   selectedFolderId: number;
   onSelectFolder: (folderId: number) => void;
   onCreateFolder: () => void;
+  onEditFolder: (folder: Folder) => void;
 };
 
 export function FolderSidebar({
@@ -18,6 +19,7 @@ export function FolderSidebar({
   selectedFolderId,
   onSelectFolder,
   onCreateFolder,
+  onEditFolder,
 }: FolderSidebarProps) {
   const allActive = selectedFolderId === ALL_FOLDER_ID;
 
@@ -50,21 +52,36 @@ export function FolderSidebar({
           ).length;
 
           return (
-            <button
+            <div
               key={folder.id}
-              type="button"
               className={`folder-board-sidebar__item ${
                 isActive ? 'folder-board-sidebar__item--active' : ''
               }`}
-              onClick={() => onSelectFolder(folder.id)}
             >
               <span
                 className="folder-board-sidebar__dot"
                 style={{ backgroundColor: folder.color }}
+                onClick={() => onSelectFolder(folder.id)}
               />
-              <span className="folder-board-sidebar__name">{folder.name}</span>
+              <span
+                className="folder-board-sidebar__name"
+                onClick={() => onSelectFolder(folder.id)}
+              >
+                {folder.name}
+              </span>
               <span className="folder-board-sidebar__count">{taskCount}</span>
-            </button>
+              <button
+                type="button"
+                className="folder-board-sidebar__edit"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditFolder(folder);
+                }}
+                aria-label={`Edit ${folder.name}`}
+              >
+                ✎
+              </button>
+            </div>
           );
         })}
       </div>

@@ -43,6 +43,7 @@ type AppContextValue = {
   toggleTask: (taskId: number) => void;
   moveTask: (taskId: number, newStatus: TaskStatus) => void;
   updateTask: (task: Task) => void;
+  addTimeToTask: (taskId: number, minutes: number) => void;
   addTaskFull: (input: {
     folderId: number;
     title: string;
@@ -53,6 +54,7 @@ type AppContextValue = {
 
   // Folders
   addFolder: (input: { name: string; color: string }) => void;
+  updateFolder: (id: number, patch: { name?: string; color?: string }) => void;
 
   // Daily report
   setActiveDay: (dayId: number) => void;
@@ -62,7 +64,8 @@ type AppContextValue = {
   removeNextTask: (id: number) => void;
   promoteSuggested: (id: number) => void;
   updateNote: (note: string) => void;
-  updateValue: (value: string) => void;
+  addValue: (text: string) => void;
+  removeValue: (index: number) => void;
   removeTimeEntry: (index: number) => void;
 
   // User settings
@@ -85,11 +88,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ── Tasks ────────────────────────────────────────────────────────
   const toggleTask = useCallback((taskId: number) => {
     setTasks((prev) =>
-      prev.map((t) =>
-        t.id === taskId
-          ? { ...t, status: t.status === 'done' ? 'todo' : 'done' }
-          : t,
-      ),
+      prev.map((t) => {
+        if (t.id !== taskId) return t;
+        const nowDone = t.status !== 'done';
+        return {
+          ...t,
+          status: nowDone ? 'done' : 'todo',
+          completedAt: nowDone ? Date.now() : undefined,
+        } as Task;
+      }),
     );
   }, []);
 
@@ -130,7 +137,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           tag: '',
           priority,
           status,
-          time: '—',
+          trackedMin: 0,
           comment: comment.trim() || undefined,
         },
       ]);
@@ -151,6 +158,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const updateFolder = useCallback(
+    (id: number, patch: { name?: string; color?: string }) => {
+      setFolders((prev) =>
+        prev.map((f) => {
+          if (f.id !== id) return f;
+          return {
+            ...f,
+            ...(patch.name !== undefined ? { name: patch.name.trim().toUpperCase() } : {}),
+            ...(patch.color !== undefined ? { color: patch.color } : {}),
+          };
+        }),
+      );
+    },
+    [],
+  );
+
+  const addTimeToTask = useCallback((taskId: number, minutes: number) => {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId
+          ? { ...t, trackedMin: t.trackedMin + minutes }
+          : t,
+      ),
+    );
+  }, []);
+
   // ── Daily report ─────────────────────────────────────────────────
   const setActiveDay = useCallback((dayId: number) => {
     setDayReport((prev) => ({
@@ -162,7 +195,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addDoneItem = useCallback((text: string) => {
     const value = text.trim();
     if (!value) return;
-    setDayReport((prev) => ({ ...prev, done: [...prev.done, value] }));
+    setDayReport((prev) => ({
+      ...prev,
+      done: [...prev.done, { text: value, ts: Date.now() }],
+    }));
   }, []);
 
   const removeDoneItem = useCallback((index: number) => {
@@ -201,8 +237,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setDayReport((prev) => ({ ...prev, note }));
   }, []);
 
-  const updateValue = useCallback((value: string) => {
-    setDayReport((prev) => ({ ...prev, value }));
+  const addValue = useCallback((text: string) => {
+    const v = text.trim();
+    if (!v) return;
+    setDayReport((prev) => ({ ...prev, values: [...prev.values, v] }));
+  }, []);
+
+  const removeValue = useCallback((index: number) => {
+    setDayReport((prev) => ({
+      ...prev,
+      values: prev.values.filter((_, i) => i !== index),
+    }));
   }, []);
 
   const removeTimeEntry = useCallback((index: number) => {
@@ -246,8 +291,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleTask,
       moveTask,
       updateTask,
+      addTimeToTask,
       addTaskFull,
       addFolder,
+      updateFolder,
       setActiveDay,
       addDoneItem,
       removeDoneItem,
@@ -255,7 +302,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeNextTask,
       promoteSuggested,
       updateNote,
-      updateValue,
+      addValue,
+      removeValue,
       removeTimeEntry,
       updateSettings,
     }),
@@ -268,8 +316,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleTask,
       moveTask,
       updateTask,
+      addTimeToTask,
       addTaskFull,
       addFolder,
+      updateFolder,
       setActiveDay,
       addDoneItem,
       removeDoneItem,
@@ -277,7 +327,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeNextTask,
       promoteSuggested,
       updateNote,
-      updateValue,
+      addValue,
+      removeValue,
       removeTimeEntry,
       updateSettings,
     ],

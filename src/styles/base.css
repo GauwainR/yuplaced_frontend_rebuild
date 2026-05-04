@@ -22,8 +22,8 @@
   --blue:     #64b5f6;
   --purple:   #ce93d8;
 
-  --mono: 'Share Tech Mono', monospace;
-  --body: 'Space Mono', monospace;
+  --mono: 'JetBrains Mono', monospace;
+  --body: 'Inter', sans-serif;
 }
 
 /* ── Base ── */

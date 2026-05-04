@@ -15,11 +15,13 @@ export const mockDayReport: DayReport = {
     daysLogged: 18,
   },
   done: [
-    'Настроить ESLint',
-    'Обновить зависимости',
-    'Ревью PR #14',
+    { text: 'Настроить ESLint', ts: Date.now() - 7200000 },
+    { text: 'Обновить зависимости', ts: Date.now() - 14400000 },
+    { text: 'Ревью PR #14', ts: Date.now() - 14400000 },
   ],
-  value: 'Разобрался с архитектурой middleware в Express.',
+  values: [
+    'Разобрался с архитектурой middleware в Express.',
+  ],
   time: {
     total: '4h 30m',
     entries: [

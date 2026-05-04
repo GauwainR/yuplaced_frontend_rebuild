@@ -2,19 +2,18 @@ import { useState } from 'react';
 import { useApp } from '../../app/providers';
 import { DailyReportSidebar } from './DailyReportSidebar';
 import { DoneSection } from './DoneSection';
-import { ValueSection } from './ValueSection';
 import { TimeSection } from './TimeSection';
 import { NoteSection } from './NoteSection';
 import { NextTasksSection } from './NextTasksSection';
+import { ValueSection } from './ValueSection';
 
 export function DailyReport() {
   const { dayReport } = useApp();
 
-  // Collapsible state — initial values match legacy DailyReportTab:
-  // TIME and NOTE start collapsed, NEXT starts open.
-  const [timeOpen, setTimeOpen] = useState(false);
-  const [noteOpen, setNoteOpen] = useState(false);
+  const [timeOpen, setTimeOpen] = useState(true);
+  const [noteOpen, setNoteOpen] = useState(true);
   const [nextOpen, setNextOpen] = useState(true);
+  const [valueOpen, setValueOpen] = useState(true);
 
   return (
     <div className="daily-layout">
@@ -25,7 +24,6 @@ export function DailyReport() {
 
       <div className="daily-main">
         <DoneSection items={dayReport.done} />
-        <ValueSection value={dayReport.value} doneItems={dayReport.done} />
 
         <div className="collapsible-row">
           <TimeSection
@@ -42,6 +40,12 @@ export function DailyReport() {
             tasks={dayReport.next}
             open={nextOpen}
             onToggle={() => setNextOpen((v) => !v)}
+          />
+          <ValueSection
+            values={dayReport.values}
+            doneItems={dayReport.done}
+            open={valueOpen}
+            onToggle={() => setValueOpen((v) => !v)}
           />
         </div>
       </div>

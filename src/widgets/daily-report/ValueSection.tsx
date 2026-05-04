@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, type KeyboardEvent } from 'react';
 import { useApp } from '../../app/providers';
+import type { DoneItem } from '../../entities/day-report/model/types';
 
 type Props = {
-  value: string;
-  doneItems: string[];
+  values: string[];
+  doneItems: DoneItem[];
+  open: boolean;
+  onToggle: () => void;
 };
 
 const FALLBACK_INSIGHTS = [
@@ -14,65 +17,90 @@ const FALLBACK_INSIGHTS = [
   'Сосредоточенность сегодня — фундамент завтра.',
 ];
 
-export function ValueSection({ value, doneItems }: Props) {
-  const { updateValue } = useApp();
-  const [editing, setEditing] = useState(false);
+export function ValueSection({ values, doneItems, open, onToggle }: Props) {
+  const { addValue, removeValue } = useApp();
+  const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Legacy uses window.claude.complete to generate an AI insight from doneItems.
-  // That API is not available outside the dashboard sandbox, so we use a local
-  // fallback rotation. When backend wiring lands, swap this for a fetch().
+  const submit = () => {
+    if (!draft.trim()) return;
+    addValue(draft);
+    setDraft('');
+  };
+
+  const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') submit();
+  };
+
   const handleGenerate = async () => {
     setLoading(true);
-    setEditing(false);
     await new Promise((resolve) => setTimeout(resolve, 350));
-    // doneItems will be used by the real backend prompt — referenced here so
-    // the parameter is not flagged as unused once you wire the real call.
     void doneItems;
     const next =
       FALLBACK_INSIGHTS[Math.floor(Math.random() * FALLBACK_INSIGHTS.length)];
-    updateValue(next);
+    addValue(next);
     setLoading(false);
   };
 
+  const summary =
+    values.length > 0
+      ? `${values.length} insight${values.length > 1 ? 's' : ''}`
+      : '—';
+
   return (
-    <section className="value-section">
-      <header className="ds-header">
-        <span className="ds-label pink">VALUE</span>
-        <span className="ds-meta">автоматически</span>
+    <section className={`collapsible-section ${open ? 'expanded' : ''}`}>
+      <header className="coll-header" onClick={onToggle}>
+        <div className="coll-header__title">
+          <span className="ds-label pink">VALUE</span>
+          {!open && <span className="coll-summary">{summary}</span>}
+        </div>
+        <span className={`coll-chevron ${open ? 'open' : ''}`}>▾</span>
       </header>
 
-      {!editing ? (
-        <div className={`value-insight fade-in ${loading ? 'loading' : ''}`}>
-          {loading ? 'генерация…' : value ? `"${value}"` : '—'}
-        </div>
-      ) : (
-        <textarea
-          className="value-edit-area"
-          rows={3}
-          value={value}
-          onChange={(e) => updateValue(e.target.value)}
-          autoFocus
-        />
-      )}
+      {open && (
+        <div className="coll-body fade-in">
+          {values.map((text, i) => (
+            <div key={`${text}-${i}`} className="value-item">
+              <span className="value-item__text">"{text}"</span>
+              <button
+                type="button"
+                className="b-task__del"
+                onClick={() => removeValue(i)}
+                aria-label="Remove"
+              >
+                ×
+              </button>
+            </div>
+          ))}
 
-      <div className="value-actions">
-        <button
-          type="button"
-          className="value-btn gen"
-          onClick={handleGenerate}
-          disabled={loading}
-        >
-          {loading ? '…' : '⟳ GENERATE'}
-        </button>
-        <button
-          type="button"
-          className="value-btn"
-          onClick={() => setEditing((v) => !v)}
-        >
-          {editing ? 'SAVE' : 'EDIT'}
-        </button>
-      </div>
+          <div className="add-row-s">
+            <input
+              className="add-inp"
+              placeholder="Инсайт или ценность…"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={handleKey}
+            />
+            <button
+              type="button"
+              className="add-sub"
+              onClick={submit}
+              aria-label="Add"
+            >
+              ↵
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className="value-gen-btn"
+            onClick={handleGenerate}
+            disabled={loading}
+          >
+            {loading ? '…' : '⟳ GENERATE'}
+          </button>
+        </div>
+      )}
     </section>
   );
 }

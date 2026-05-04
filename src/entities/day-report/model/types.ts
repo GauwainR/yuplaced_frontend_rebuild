@@ -16,6 +16,11 @@ export type NextTask = {
   suggested?: boolean;
 };
 
+export type DoneItem = {
+  text: string;
+  ts: number;
+};
+
 export type DayReport = {
   recentDays: RecentDay[];
   stats: {
@@ -23,8 +28,8 @@ export type DayReport = {
     tasksDone: number;
     daysLogged: number;
   };
-  done: string[];
-  value: string;
+  done: DoneItem[];
+  values: string[];
   time: {
     total: string;
     entries: TimeEntry[];

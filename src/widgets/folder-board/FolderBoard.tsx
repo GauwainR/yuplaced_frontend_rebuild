@@ -15,8 +15,10 @@ import { useApp } from '../../app/providers';
 import { FolderSidebar, ALL_FOLDER_ID } from './FolderSidebar';
 import { CreateTaskModal } from './CreateTaskModal';
 import { CreateFolderModal } from './CreateFolderModal';
+import { CompleteTaskModal } from './CompleteTaskModal';
 import { TaskSidebar } from './TaskSidebar';
 import type { Task, TaskStatus } from '../../entities/task/model/types';
+import { fmtTracked } from '../../entities/task/model/types';
 
 type ViewMode = 'kanban' | 'list';
 
@@ -47,8 +49,10 @@ const TAG_COLORS: Record<string, string> = {
 };
 
 export function FolderBoard() {
-  const { folders, tasks, toggleTask, moveTask, updateTask, addTaskFull, addFolder } =
-    useApp();
+  const {
+    folders, tasks, toggleTask, moveTask, updateTask,
+    addTaskFull, addFolder, updateFolder, addTimeToTask, addValue,
+  } = useApp();
 
   const [selectedFolderId, setSelectedFolderId] = useState<number>(ALL_FOLDER_ID);
   const [viewMode, setViewMode] = useState<ViewMode>('kanban');
@@ -58,9 +62,69 @@ export function FolderBoard() {
   const [taskModalDefaultStatus, setTaskModalDefaultStatus] =
     useState<TaskStatus>('todo');
   const [folderModalOpen, setFolderModalOpen] = useState(false);
+  const [editingFolder, setEditingFolder] = useState<typeof folders[0] | null>(null);
 
   // Task sidebar
   const [sidebarTask, setSidebarTask] = useState<Task | null>(null);
+
+  // Complete-task modal: shown when a task transitions to 'done'
+  const [pendingDoneTask, setPendingDoneTask] = useState<Task | null>(null);
+  const [pendingDoneCallback, setPendingDoneCallback] = useState<(() => void) | null>(null);
+
+  // ── Intercept handlers: show modal before marking done ────
+  const handleToggle = (taskId: number) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    if (task.status !== 'done') {
+      // Going TO done → show modal
+      setPendingDoneTask(task);
+      setPendingDoneCallback(() => () => toggleTask(taskId));
+    } else {
+      // Un-doing → just toggle
+      toggleTask(taskId);
+    }
+  };
+
+  const handleMove = (taskId: number, newStatus: TaskStatus) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    if (newStatus === 'done' && task.status !== 'done') {
+      setPendingDoneTask(task);
+      setPendingDoneCallback(() => () => moveTask(taskId, 'done'));
+    } else {
+      moveTask(taskId, newStatus);
+    }
+  };
+
+  const handleSidebarUpdate = (updated: Task) => {
+    const original = tasks.find((t) => t.id === updated.id);
+    if (updated.status === 'done' && original && original.status !== 'done') {
+      setPendingDoneTask(updated);
+      setPendingDoneCallback(() => () => updateTask(updated));
+      setSidebarTask(null);
+    } else {
+      updateTask(updated);
+      setSidebarTask(null);
+    }
+  };
+
+  const handleCompleteDone = (data: { minutes: number; value: string }) => {
+    pendingDoneCallback?.();
+    if (pendingDoneTask && data.minutes > 0) {
+      addTimeToTask(pendingDoneTask.id, data.minutes);
+    }
+    if (data.value) {
+      addValue(data.value);
+    }
+    setPendingDoneTask(null);
+    setPendingDoneCallback(null);
+  };
+
+  const handleSkipDone = () => {
+    pendingDoneCallback?.();
+    setPendingDoneTask(null);
+    setPendingDoneCallback(null);
+  };
 
   // Resolve selected folder (real or ALL pseudo-folder)
   const isAllView = selectedFolderId === ALL_FOLDER_ID;
@@ -109,7 +173,14 @@ export function FolderBoard() {
         tasks={tasks}
         selectedFolderId={selectedFolderId}
         onSelectFolder={setSelectedFolderId}
-        onCreateFolder={() => setFolderModalOpen(true)}
+        onCreateFolder={() => {
+          setEditingFolder(null);
+          setFolderModalOpen(true);
+        }}
+        onEditFolder={(folder) => {
+          setEditingFolder(folder);
+          setFolderModalOpen(true);
+        }}
       />
 
       <main className="folder-board-main">
@@ -163,7 +234,7 @@ export function FolderBoard() {
             folders={folders}
             isAllView={isAllView}
             onAddTask={openTaskModal}
-            onMoveTask={moveTask}
+            onMoveTask={handleMove}
             onOpenTask={setSidebarTask}
           />
         )}
@@ -173,7 +244,7 @@ export function FolderBoard() {
             tasks={folderTasks}
             folders={folders}
             isAllView={isAllView}
-            onToggleTask={toggleTask}
+            onToggleTask={handleToggle}
             onOpenTask={setSidebarTask}
           />
         )}
@@ -185,10 +256,7 @@ export function FolderBoard() {
           task={sidebarTask}
           folder={sidebarFolder}
           onClose={() => setSidebarTask(null)}
-          onUpdate={(updated) => {
-            updateTask(updated);
-            setSidebarTask(null);
-          }}
+          onUpdate={handleSidebarUpdate}
         />
       )}
 
@@ -207,9 +275,23 @@ export function FolderBoard() {
 
       <CreateFolderModal
         open={folderModalOpen}
-        onClose={() => setFolderModalOpen(false)}
+        onClose={() => {
+          setFolderModalOpen(false);
+          setEditingFolder(null);
+        }}
         onCreate={(input) => addFolder(input)}
+        editFolder={editingFolder}
+        onUpdate={(id, patch) => updateFolder(id, patch)}
       />
+
+      {/* Complete-task modal */}
+      {pendingDoneTask && (
+        <CompleteTaskModal
+          task={pendingDoneTask}
+          onSubmit={handleCompleteDone}
+          onSkip={handleSkipDone}
+        />
+      )}
     </section>
   );
 }
@@ -413,6 +495,9 @@ function DraggableCard({
         <span className={`priority-badge ${task.priority.toLowerCase()}`}>
           {task.priority}
         </span>
+        {task.trackedMin > 0 && (
+          <span className="task-tag time-est">⏱ {fmtTracked(task.trackedMin)}</span>
+        )}
       </div>
     </div>
   );
@@ -439,6 +524,9 @@ function KanbanCardGhost({ task, folderColor }: { task: Task; folderColor?: stri
         <span className={`priority-badge ${task.priority.toLowerCase()}`}>
           {task.priority}
         </span>
+        {task.trackedMin > 0 && (
+          <span className="task-tag time-est">⏱ {fmtTracked(task.trackedMin)}</span>
+        )}
       </div>
     </div>
   );
@@ -501,8 +589,8 @@ function ListView({
             <span className={`priority-badge ${t.priority.toLowerCase()}`}>
               {t.priority}
             </span>
-            {t.time && t.time !== '—' && (
-              <span className="task-tag time-est">⏱ {t.time}</span>
+            {t.trackedMin > 0 && (
+              <span className="task-tag time-est">⏱ {fmtTracked(t.trackedMin)}</span>
             )}
             <span className="folder-board-list__status">
               {STATUS_LABELS[t.status]}

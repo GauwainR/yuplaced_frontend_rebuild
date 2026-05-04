@@ -7,6 +7,7 @@ import type {
   TaskPriority,
   TaskStatus,
 } from '../../entities/task/model/types';
+import { fmtTracked } from '../../entities/task/model/types';
 
 type Props = {
   task: Task;
@@ -201,6 +202,14 @@ export function TaskSidebar({ task, folder, onClose, onUpdate }: Props) {
               placeholder="Notes, context, links…"
               rows={4}
             />
+          </div>
+
+          {/* Tracked time */}
+          <div className="task-sidebar__field">
+            <div className="task-sidebar__label">TRACKED TIME</div>
+            <div className="task-sidebar__tracked">
+              {fmtTracked(task.trackedMin)}
+            </div>
           </div>
 
           {/* Divider */}
