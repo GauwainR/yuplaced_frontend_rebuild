@@ -34,12 +34,20 @@ export function ValueSection({ values, doneItems, open, onToggle }: Props) {
 
   const handleGenerate = async () => {
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    void doneItems;
-    const next =
-      FALLBACK_INSIGHTS[Math.floor(Math.random() * FALLBACK_INSIGHTS.length)];
-    addValue(next);
-    setLoading(false);
+    try {
+      // Try API first
+      const { generateInsight } = await import('../../shared/api/yunoteApi');
+      const texts = doneItems.map((d) => d.text);
+      const insight = await generateInsight(texts);
+      addValue(insight);
+    } catch {
+      // Fallback to local
+      const next =
+        FALLBACK_INSIGHTS[Math.floor(Math.random() * FALLBACK_INSIGHTS.length)];
+      addValue(next);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const summary =

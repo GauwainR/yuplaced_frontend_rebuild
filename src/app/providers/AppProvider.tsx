@@ -4,9 +4,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
+
+// ── Mocks (fallback when API unavailable) ───────────────────────
 import { mockDayReport } from '../../entities/day-report/model/mockDayReport';
 import { mockFolders } from '../../entities/folder/model/mockFolders';
 import { mockTasks } from '../../entities/task/model/mockTasks';
@@ -16,8 +19,15 @@ import {
   mockPomodoroStats,
 } from '../../entities/pomodoro/model/mockPomodoro';
 import { mockUserSettings } from '../../entities/settings/model/mockSettings';
+
+// ── Types ───────────────────────────────────────────────────────
 import type { Folder } from '../../entities/folder/model/types';
-import type { Task, TaskLogEntry, TaskPriority, TaskStatus } from '../../entities/task/model/types';
+import type {
+  Task,
+  TaskLogEntry,
+  TaskPriority,
+  TaskStatus,
+} from '../../entities/task/model/types';
 import type { DayReport, NextTask } from '../../entities/day-report/model/types';
 import type {
   PomodoroSession,
@@ -26,6 +36,16 @@ import type {
 } from '../../entities/pomodoro/model/types';
 import type { UserSettings } from '../../entities/settings/model/types';
 
+// ── API + hooks ─────────────────────────────────────────────────
+import { isLoggedIn } from '../../shared/api/authApi';
+import * as api from '../../shared/api/yunoteApi';
+import { useDebouncedSave } from '../../shared/hooks/useDebounce';
+
+// ── Constants ───────────────────────────────────────────────────
+const SAVE_DELAY = 800; // ms debounce
+
+// ── Types ───────────────────────────────────────────────────────
+
 type PomodoroState = {
   settings: PomodoroSettings;
   sessions: PomodoroSession[];
@@ -33,6 +53,11 @@ type PomodoroState = {
 };
 
 type AppContextValue = {
+  // Loading
+  loading: boolean;
+  error: string | null;
+
+  // Data
   folders: Folder[];
   tasks: Task[];
   dayReport: DayReport;
@@ -68,24 +93,125 @@ type AppContextValue = {
   removeValue: (index: number) => void;
   removeTimeEntry: (index: number) => void;
 
+  // Pomodoro
+  addPomodoroSession: (session: PomodoroSession) => void;
+
   // User settings
   updateSettings: (patch: Partial<UserSettings>) => void;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
 
+// ─────────────────────────────────────────────────────────────────
+
 export function AppProvider({ children }: { children: ReactNode }) {
+  // ── Loading / error ────────────────────────────────────────
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const dataLoaded = useRef(false);
+
+  // ── State (initialised with mocks; overwritten on fetch) ───
   const [folders, setFolders] = useState<Folder[]>(mockFolders);
   const [tasks, setTasks] = useState<Task[]>(mockTasks);
   const [dayReport, setDayReport] = useState<DayReport>(mockDayReport);
-  const [pomodoro] = useState<PomodoroState>({
-    settings: mockPomodoroSettings,
-    sessions: mockPomodoroSessions,
-    stats: mockPomodoroStats,
-  });
+  const [pomodoroSessions, setPomodoroSessions] = useState<PomodoroSession[]>(
+    mockPomodoroSessions,
+  );
   const [settings, setSettings] = useState<UserSettings>(mockUserSettings);
 
-  // ── Tasks ────────────────────────────────────────────────────────
+  const pomodoro = useMemo<PomodoroState>(
+    () => ({
+      settings: mockPomodoroSettings,
+      sessions: pomodoroSessions,
+      stats: mockPomodoroStats,
+    }),
+    [pomodoroSessions],
+  );
+
+  // ── Fetch data on mount (if logged in) ─────────────────────
+  useEffect(() => {
+    if (!isLoggedIn()) {
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const [foldersData, tasksData, dayData, profileData, sessionsData] =
+          await Promise.allSettled([
+            api.fetchFolders(),
+            api.fetchTasks(),
+            api.fetchDays(),
+            api.fetchProfile(),
+            api.fetchPomodoroSessions(),
+          ]);
+
+        if (cancelled) return;
+
+        if (foldersData.status === 'fulfilled') setFolders(foldersData.value);
+        if (tasksData.status === 'fulfilled') setTasks(tasksData.value);
+        if (dayData.status === 'fulfilled') setDayReport(dayData.value);
+        if (profileData.status === 'fulfilled') setSettings(profileData.value);
+        if (sessionsData.status === 'fulfilled')
+          setPomodoroSessions(sessionsData.value);
+
+        dataLoaded.current = true;
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to load data');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // ── Debounced autosave ─────────────────────────────────────
+  useDebouncedSave(
+    () => {
+      if (!isLoggedIn()) return;
+      api.saveFolders(folders).catch(console.error);
+    },
+    SAVE_DELAY,
+    [folders],
+  );
+
+  useDebouncedSave(
+    () => {
+      if (!isLoggedIn()) return;
+      api.saveTasks(tasks).catch(console.error);
+    },
+    SAVE_DELAY,
+    [tasks],
+  );
+
+  useDebouncedSave(
+    () => {
+      if (!isLoggedIn()) return;
+      const dateKey = new Date().toISOString().slice(0, 10);
+      api.saveDay(dateKey, dayReport).catch(console.error);
+    },
+    SAVE_DELAY,
+    [dayReport],
+  );
+
+  useDebouncedSave(
+    () => {
+      if (!isLoggedIn()) return;
+      api.saveProfile(settings).catch(console.error);
+    },
+    SAVE_DELAY,
+    [settings],
+  );
+
+  // ── Tasks ──────────────────────────────────────────────────
   const toggleTask = useCallback((taskId: number) => {
     setTasks((prev) =>
       prev.map((t) => {
@@ -102,7 +228,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const moveTask = useCallback((taskId: number, newStatus: TaskStatus) => {
     setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
+      prev.map((t) => {
+        if (t.id !== taskId) return t;
+        return {
+          ...t,
+          status: newStatus,
+          completedAt: newStatus === 'done' ? Date.now() : t.completedAt,
+        };
+      }),
     );
   }, []);
 
@@ -145,7 +278,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  // ── Folders ──────────────────────────────────────────────────────
+  const addTimeToTask = useCallback((taskId: number, minutes: number) => {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId ? { ...t, trackedMin: t.trackedMin + minutes } : t,
+      ),
+    );
+  }, []);
+
+  // ── Folders ────────────────────────────────────────────────
   const addFolder = useCallback(
     ({ name, color }: { name: string; color: string }) => {
       const value = name.trim();
@@ -165,7 +306,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (f.id !== id) return f;
           return {
             ...f,
-            ...(patch.name !== undefined ? { name: patch.name.trim().toUpperCase() } : {}),
+            ...(patch.name !== undefined
+              ? { name: patch.name.trim().toUpperCase() }
+              : {}),
             ...(patch.color !== undefined ? { color: patch.color } : {}),
           };
         }),
@@ -174,21 +317,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const addTimeToTask = useCallback((taskId: number, minutes: number) => {
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.id === taskId
-          ? { ...t, trackedMin: t.trackedMin + minutes }
-          : t,
-      ),
-    );
-  }, []);
-
-  // ── Daily report ─────────────────────────────────────────────────
+  // ── Daily report ───────────────────────────────────────────
   const setActiveDay = useCallback((dayId: number) => {
     setDayReport((prev) => ({
       ...prev,
-      recentDays: prev.recentDays.map((d) => ({ ...d, active: d.id === dayId })),
+      recentDays: prev.recentDays.map((d) => ({
+        ...d,
+        active: d.id === dayId,
+      })),
     }));
   }, []);
 
@@ -260,12 +396,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  // ── Settings ─────────────────────────────────────────────────────
+  // ── Pomodoro ───────────────────────────────────────────────
+  const addPomodoroSession = useCallback((session: PomodoroSession) => {
+    setPomodoroSessions((prev) => [session, ...prev].slice(0, 50));
+
+    // Fire-and-forget save to backend
+    if (isLoggedIn()) {
+      api.savePomodoroSession(session).catch(console.error);
+    }
+  }, []);
+
+  // ── Settings ───────────────────────────────────────────────
   const updateSettings = useCallback((patch: Partial<UserSettings>) => {
     setSettings((prev) => ({ ...prev, ...patch }));
   }, []);
 
-  // Apply accent color globally (matches legacy dashboard-app.jsx behavior)
+  // Apply accent color globally
   useEffect(() => {
     const root = document.documentElement;
     const c = settings.accentColor;
@@ -281,8 +427,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     root.style.setProperty('--daily-pink', c);
   }, [settings.accentColor]);
 
+  // ── Context value ──────────────────────────────────────────
   const value = useMemo<AppContextValue>(
     () => ({
+      loading,
+      error,
       folders,
       tasks,
       dayReport,
@@ -305,9 +454,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addValue,
       removeValue,
       removeTimeEntry,
+      addPomodoroSession,
       updateSettings,
     }),
     [
+      loading,
+      error,
       folders,
       tasks,
       dayReport,
@@ -330,6 +482,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addValue,
       removeValue,
       removeTimeEntry,
+      addPomodoroSession,
       updateSettings,
     ],
   );

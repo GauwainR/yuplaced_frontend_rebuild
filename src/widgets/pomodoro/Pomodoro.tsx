@@ -4,8 +4,8 @@ import { Controls } from './Controls';
 import { SessionLog } from './SessionLog';
 import { SessionProgress } from './SessionProgress';
 import { SettingsPanel } from './SettingsPanel';
-import { Timer } from './Timer';
 import { TaskPicker } from './TaskPicker';
+import { Timer } from './Timer';
 import { TodayStats } from './TodayStats';
 import type { PomodoroSession } from '../../entities/pomodoro/model/types';
 import type { Task } from '../../entities/task/model/types';
@@ -13,7 +13,14 @@ import type { Task } from '../../entities/task/model/types';
 type Phase = 'work' | 'break';
 
 export function Pomodoro() {
-  const { pomodoro, tasks, folders, settings: userSettings, addTimeToTask } = useApp();
+  const {
+    pomodoro,
+    tasks,
+    folders,
+    settings: userSettings,
+    addTimeToTask,
+    addPomodoroSession,
+  } = useApp();
 
   // ── Settings ───────────────────────────────────────────────
   const [workMin, setWorkMin] = useState(pomodoro.settings.workDuration);
@@ -27,10 +34,8 @@ export function Pomodoro() {
   );
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
 
-  // Auto-select first in-progress task if nothing selected
   useEffect(() => {
     if (selectedTaskId !== null) {
-      // Verify still valid
       if (!inProgressTasks.find((t) => t.id === selectedTaskId)) {
         setSelectedTaskId(inProgressTasks[0]?.id ?? null);
       }
@@ -61,7 +66,6 @@ export function Pomodoro() {
   const [sessions, setSessions] = useState<boolean[]>(
     Array.from({ length: dailyGoal }, () => false),
   );
-  const [log, setLog] = useState<PomodoroSession[]>(pomodoro.sessions);
 
   const intervalRef = useRef<number | null>(null);
   const selectedTaskRef = useRef<number | null>(selectedTaskId);
@@ -107,6 +111,7 @@ export function Pomodoro() {
         setRunning(false);
 
         if (phase === 'work') {
+          // ── Work session completed ──
           setSessions((prev) => {
             const i = prev.findIndex((v) => !v);
             if (i < 0) return prev;
@@ -115,20 +120,19 @@ export function Pomodoro() {
             return next;
           });
 
-          // Build log entry with task name
           const taskLabel = selectedTask
             ? `Deep work — ${selectedTask.title}`
             : 'Deep work — session done';
 
-          const newEntry: PomodoroSession = {
+          const focusEntry: PomodoroSession = {
             id: Date.now(),
             title: taskLabel,
             type: 'focus',
             duration: `${String(workMin).padStart(2, '0')}:00`,
           };
-          setLog((prev) => [newEntry, ...prev].slice(0, 12));
+          addPomodoroSession(focusEntry);
 
-          // Track time on the attached task
+          // Track time on attached task
           if (selectedTaskRef.current !== null) {
             addTimeToTask(selectedTaskRef.current, workMin);
           }
@@ -136,6 +140,15 @@ export function Pomodoro() {
           setPhase('break');
           return breakMin * 60;
         } else {
+          // ── Break session completed ──
+          const breakEntry: PomodoroSession = {
+            id: Date.now(),
+            title: 'Short break',
+            type: 'break',
+            duration: `${String(breakMin).padStart(2, '0')}:00`,
+          };
+          addPomodoroSession(breakEntry);
+
           setPhase('work');
           return workMin * 60;
         }
@@ -148,7 +161,6 @@ export function Pomodoro() {
         intervalRef.current = null;
       }
     };
-    // selectedTask is intentionally NOT in deps — we snapshot it at session start
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running, phase, workMin, breakMin]);
 
@@ -221,7 +233,7 @@ export function Pomodoro() {
           onBreakChange={setBreakMin}
           onDailyGoalChange={setDailyGoal}
         />
-        <SessionLog sessions={log} />
+        <SessionLog sessions={pomodoro.sessions} />
         <TodayStats stats={liveStats} />
       </aside>
     </div>
